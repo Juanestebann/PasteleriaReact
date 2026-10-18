@@ -1,9 +1,7 @@
 /* Pastelería Mil Sabores | tienda.css
    Estructura pública: navegación, inicio, catálogo, carrito, blogs y contacto.
    Paleta y medidas heredadas de los 22 CSS originales. */
-
 /* ===== Origen: css/main.css ===== */
-
 #barra-superior {
     background-color: var(--color-principal);
     color: var(--color-blanco);
@@ -115,6 +113,165 @@
     color: var(--color-secundario);
     font-weight: bold;
     white-space: nowrap;
+}
+
+/* ===== ENCABEZADO PÚBLICO - ORIGINAL EN ESCRITORIO ===== */
+/* Se identifica por sus hijos reales, sin depender de la clase del layout. */
+header:has(> #marca):has(> #menu) {
+    background-color: var(--color-fondo);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 40px;
+    text-align: center;
+}
+
+header:has(> #marca)>#marca,
+header:has(> #marca)>#menu,
+header:has(> #marca)>#acciones-header,
+header:has(> #marca)>#sesion-header {
+    width: auto;
+    min-width: 0;
+}
+
+header:has(> #marca)>#marca,
+header:has(> #marca)>#sesion-header {
+    flex-shrink: 0;
+}
+
+header:has(> #marca)>#menu,
+header:has(> #marca)>#acciones-header {
+    flex-wrap: nowrap;
+}
+
+/* Escritorio: tamaños originales de marca, menú y buscador. */
+@media (min-width: 1450px) and (max-width: 1650px) {
+    header:has(> #marca):has(> #menu) {
+        padding: 20px 24px;
+        gap: 12px;
+    }
+
+    header:has(> #marca) #marca h1 {
+        font-size: 30px;
+    }
+
+    header:has(> #marca) #menu a {
+        font-size: 16px;
+        padding: 12px 8px;
+    }
+
+    header:has(> #marca) #buscador input {
+        width: 170px;
+    }
+
+    header:has(> #marca) #buscador button {
+        width: 48px;
+    }
+}
+
+/* Pantallas más estrechas: reducir solo lo necesario para mantener la fila. */
+@media (min-width: 1200px) and (max-width: 1449px) {
+    header:has(> #marca):has(> #menu) {
+        padding: 16px 16px;
+        gap: 8px;
+    }
+
+    header:has(> #marca) #marca h1 {
+        font-size: 25px;
+    }
+
+    header:has(> #marca) #menu {
+        gap: 0;
+    }
+
+    header:has(> #marca) #menu a {
+        font-size: 13px;
+        padding: 10px 5px;
+    }
+
+    header:has(> #marca) #buscador input {
+        width: 125px;
+    }
+
+    header:has(> #marca) #buscador button {
+        width: 42px;
+    }
+
+    header:has(> #marca) #acciones-header {
+        gap: 7px;
+    }
+}
+
+/* Tablet: el contenido se reacomoda cuando no cabe en una fila. */
+@media (max-width: 1199px) {
+    header:has(> #marca):has(> #menu) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        padding: 18px 22px;
+    }
+
+    header:has(> #marca)>#marca,
+    header:has(> #marca)>#menu {
+        width: 100%;
+    }
+
+    header:has(> #marca)>#menu {
+        flex-wrap: wrap;
+    }
+
+    #barra-superior {
+        gap: 16px;
+    }
+}
+
+/* Móvil: sin desbordamiento horizontal. */
+@media (max-width: 600px) {
+    header:has(> #marca):has(> #menu) {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px 12px;
+    }
+
+    header:has(> #marca) #marca h1 {
+        font-size: 25px;
+    }
+
+    header:has(> #marca)>#menu {
+        gap: 0;
+        justify-content: center;
+    }
+
+    header:has(> #marca) #menu a {
+        font-size: 14px;
+        padding: 8px 7px;
+    }
+
+    header:has(> #marca)>#acciones-header {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    header:has(> #marca) #buscador {
+        max-width: 100%;
+    }
+
+    header:has(> #marca) #buscador input {
+        width: min(170px, 50vw);
+        min-width: 0;
+    }
+
+    #barra-superior {
+        flex-direction: column;
+        gap: 5px;
+        text-align: center;
+        padding: 10px 12px;
+        font-size: 12px;
+    }
 }
 
 #principal {
@@ -423,7 +580,6 @@
 }
 
 /* ===== Origen: css/contacto.css ===== */
-
 #contacto-presentacion {
     padding: 70px 100px;
     text-align: center;
@@ -544,7 +700,6 @@
 }
 
 /* ===== Origen: css/productos.css ===== */
-
 #catalogo-completo {
     max-width: 1200px;
     margin: 40px auto;
@@ -660,7 +815,6 @@
 }
 
 /* ===== Origen: css/detalle-producto.css ===== */
-
 #detalle-contenedor {
     max-width: 1150px;
     margin: 30px auto;
@@ -841,7 +995,6 @@
 }
 
 /* ===== Origen: css/carrito.css ===== */
-
 #carrito-contenedor {
     max-width: 1100px;
     margin: 50px auto;
@@ -1048,7 +1201,6 @@
 }
 
 /* ===== Origen: css/nosotros.css ===== */
-
 #sobre-nosotros {
     display: flex;
     align-items: center;
@@ -1065,13 +1217,13 @@
     max-width: 650px;
 }
 
-#sobre-nosotros-texto h2 {
+#sobre-nosotros-texto h1 {
     font-size: 36px;
     margin-top: 10px;
     margin-bottom: 20px;
 }
 
-#sobre-nosotros-texto h2::after {
+#sobre-nosotros-texto h1::after {
     content: "";
     display: block;
     width: 70px;
@@ -1313,8 +1465,80 @@
     }
 }
 
-/* ===== Origen: css/blogs.css ===== */
+/* ===== AJUSTES RESPONSIVE J07 - NOSOTROS ===== */
+/* Tablet y móvil */
+@media (max-width: 900px) {
 
+    #sobre-nosotros-texto,
+    #sobre-nosotros-imagen {
+        min-width: 0;
+    }
+
+    #sobre-nosotros-imagen img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .valor,
+    .desarrollador {
+        width: 100%;
+        max-width: 450px;
+    }
+}
+
+/* Móvil */
+@media (max-width: 600px) {
+    #sobre-nosotros {
+        gap: 25px;
+        padding: 30px 20px;
+    }
+
+    #sobre-nosotros-texto h1 {
+        font-size: 28px;
+    }
+
+    #sobre-nosotros-texto p,
+    #historia p,
+    #mision p,
+    #texto-desarrolladores,
+    #compromiso p {
+        font-size: 16px;
+    }
+
+    #historia,
+    #mision,
+    #valores,
+    #desarrolladores,
+    #compromiso {
+        padding: 35px 20px;
+    }
+
+    #historia h2,
+    #mision h2,
+    #valores h2,
+    #desarrolladores h2,
+    #compromiso h2 {
+        font-size: 27px;
+    }
+
+    .tarjeta-mision {
+        padding: 25px 20px;
+    }
+
+    #lista-valores,
+    #lista-desarrolladores {
+        gap: 20px;
+    }
+
+    .valor,
+    .desarrollador {
+        width: 100%;
+        max-width: 100%;
+        padding: 25px 20px;
+    }
+}
+
+/* ===== Origen: css/blogs.css ===== */
 #blog-presentacion {
     padding: 70px 100px;
     text-align: center;
@@ -1451,7 +1675,6 @@
 }
 
 /* ===== Origen: css/blog-detalle.css ===== */
-
 #detalle-presentacion {
     padding: 70px 100px 50px 100px;
     text-align: center;

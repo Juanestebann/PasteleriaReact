@@ -11,7 +11,6 @@ import {
   Carrito,
   Login,
   Registro,
-  Nosotros,
   Blogs,
   DetalleBlog,
   Contacto,
@@ -19,7 +18,7 @@ import {
 } from './paginas/tienda/PaginasProvisionales'
 
 import Inicio from './paginas/tienda/Inicio'
-
+import Nosotros from './paginas/tienda/Nosotros'
 import {
   InicioAdmin,
   ProductosAdmin,
