@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router'
 import Encabezado from '../organismos/Encabezado'
+import PiePagina from '../organismos/PiePagina'
 
 function LayoutTienda() {
     return (
@@ -12,6 +13,7 @@ function LayoutTienda() {
             <main>
                 <Outlet />
             </main>
+            <PiePagina />
         </>
     )
 }
