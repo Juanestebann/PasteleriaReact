@@ -1,7 +1,11 @@
 
 import { Link } from 'react-router'
 
-function Encabezado() {
+function Encabezado({
+    usuario = null,
+    cantidadCarrito = 0,
+    onCerrarSesion = () => { }
+}) {
     return (
         <>
             {/* BARRA SUPERIOR */}
@@ -49,20 +53,27 @@ function Encabezado() {
                     <Link
                         className="boton-icono"
                         to="/carrito"
-                        aria-label="Ver carrito"
+                        aria-label={`Ver carrito, ${cantidadCarrito} productos`}
                     >
-                        🛒
+                        🛒 <span>{cantidadCarrito}</span>
                     </Link>
 
                 </section>
                 {/* ESTADO DE SESIÓN */}
                 <section id="sesion-header">
-                    <Link
-                        className="boton-IniciarSesion"
-                        to="/login"
-                    >
-                        Iniciar Sesión
-                    </Link>
+                    {usuario ? (
+                        <>
+                            <span>Hola, {usuario.nombre}</span>
+
+                            <button type="button" onClick={onCerrarSesion}>
+                                Cerrar sesión
+                            </button>
+                        </>
+                    ) : (
+                        <Link className="boton-IniciarSesion" to="/login">
+                            Iniciar Sesión
+                        </Link>
+                    )}
                 </section>
             </header>
         </>
