@@ -1,0 +1,93 @@
+/* Pastelería Mil Sabores | tema.css
+   Variables originales, tipografía y puente con Bootstrap 5.
+   Paleta y medidas heredadas de los 22 CSS originales. */
+
+/* ===== Origen: css/global.css ===== */
+
+:root {
+    --color-principal: #3B1F0F;
+    --color-secundario: #5D4037;
+    --color-acento: #D89B2B;
+    --color-acento-hover: #B97818;
+    --color-fondo: #FFF5E1;
+    --color-fondo-suave: #F7F2EA;
+    --color-blanco: #FFFFFF;
+    --color-marca: #8B4513;
+    --color-texto-suave: #795548;
+    --color-borde-panel: #E7C9A9;
+    --color-borde-campo: #D9CBC0;
+    --color-borde-suave: #EEE4DB;
+    --color-secundario-fondo: #F6F0E7;
+    --color-secundario-hover: #E8DCCB;
+    --color-error: #B3261E;
+    --color-error-acceso: #C0392B;
+    --color-error-contacto: #B00020;
+    --color-peligro-hover: #8C1D18;
+    --color-exito: #2E7D32;
+    --color-estado-exito: #397443;
+    --color-fondo-exito: #E9F4E9;
+    --color-fondo-error: #FDE4E4;
+    --color-rol-cliente: #8B5A00;
+    --color-fondo-cliente: #FFF1D7;
+    --color-rol-admin: #24557C;
+    --color-fondo-admin: #DDEBFA;
+    --radio-base: 8px;
+    --radio-panel: 12px;
+    --sombra-panel: 0 3px 10px rgba(0, 0, 0, 0.08);
+    --sombra-foco: 0 0 0 3px rgba(216, 155, 43, 0.10);
+    --sombra-foco-acceso: 0 0 0 3px rgba(216, 155, 43, 0.15);
+}
+
+/* Bootstrap 5 ya aplica box-sizing: border-box; se elimina .modelo-borde. */
+
+body {
+    margin: 0;
+    background-color: var(--color-fondo);
+    color: var(--color-secundario);
+    font-family: Arial, sans-serif;
+}
+
+.pagina-admin {
+    background-color: var(--color-fondo-suave);
+}
+
+/* ===== Origen: css/main.css ===== */
+
+input,
+button,
+a,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+section,
+article,
+footer,
+nav {
+    font-family: inherit;
+}
+
+/* Bootstrap se importa ANTES de estos archivos en main.jsx. */
+:root {
+    --bs-primary: var(--color-acento);
+    --bs-primary-rgb: 216, 155, 43;
+    --bs-secondary: var(--color-secundario);
+    --bs-secondary-rgb: 93, 64, 55;
+    --bs-body-bg: var(--color-fondo);
+    --bs-body-color: var(--color-secundario);
+    --bs-border-color: var(--color-borde-campo);
+    --bs-link-color: var(--color-marca);
+    --bs-link-hover-color: var(--color-acento-hover);
+    --bs-font-sans-serif: Arial, sans-serif;
+}
+
+/* En SPA, .layout-admin puede sustituir a la clase body .pagina-admin. */
+.layout-admin {
+    background-color: var(--color-fondo-suave);
+    min-height: 100vh;
+}
+
+/* Se usan los colores existentes también en las variantes estándar de Bootstrap. */

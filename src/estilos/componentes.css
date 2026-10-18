@@ -1,0 +1,506 @@
+/* Pastelería Mil Sabores | componentes.css
+   Botones, tarjetas, insignias, mensajes y componentes reutilizables.
+   Paleta y medidas heredadas de los 22 CSS originales. */
+
+/* ===== Origen: css/componentes.css ===== */
+
+.btn {
+    border-radius: var(--radio-base);
+    text-decoration: none;
+}
+
+.btn-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-principal,
+.boton-editar,
+.boton-editar-producto,
+.boton-dorado,
+.boton-producto,
+.acciones-producto button,
+.btn-compra {
+    background-color: var(--color-acento);
+    color: var(--color-blanco);
+}
+
+.btn-principal:hover,
+.boton-editar:hover,
+.boton-editar-producto:hover {
+    background-color: var(--color-acento-hover);
+}
+
+.btn-secundario,
+.boton-ver {
+    background-color: var(--color-secundario-fondo);
+    color: var(--color-principal);
+}
+
+.btn-secundario:hover,
+.boton-ver:hover {
+    background-color: var(--color-secundario-hover);
+}
+
+.boton-eliminar-producto {
+    background-color: var(--color-error);
+    color: var(--color-blanco);
+}
+
+.boton-eliminar-producto:hover {
+    background-color: var(--color-peligro-hover);
+}
+
+.btn-acceso {
+    width: 100%;
+    height: 52px;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-acceso:hover,
+.btn-elevable:hover,
+.boton-ver:hover,
+.boton-editar:hover,
+.boton-editar-producto:hover,
+.boton-eliminar-producto:hover {
+    transform: translateY(-1px);
+}
+
+.btn-listado {
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 14px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(59, 31, 15, 0.12);
+    transition: 0.2s;
+}
+
+.btn-listado i {
+    color: var(--color-blanco);
+    font-size: 14px;
+}
+
+.boton-ver,
+.boton-editar,
+.boton-editar-producto,
+.boton-eliminar-producto {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+
+.boton-ver,
+.boton-editar {
+    gap: 6px;
+    margin-right: 5px;
+}
+
+.boton-ver i {
+    color: var(--color-secundario);
+}
+
+.boton-editar i {
+    color: var(--color-blanco);
+}
+
+.boton-eliminar-producto {
+    font-family: Arial, sans-serif;
+}
+
+.btn-compra {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 0;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-oscuro {
+    background-color: var(--color-principal);
+    color: var(--color-blanco);
+}
+
+.btn-oscuro:hover {
+    background-color: var(--color-secundario);
+    transform: translateY(-3px);
+}
+
+.panel {
+    background-color: var(--color-blanco);
+    border-radius: var(--radio-panel);
+    box-shadow: var(--sombra-panel);
+}
+
+.panel-con-borde {
+    padding: 30px;
+    border: 1px solid var(--color-borde-panel);
+}
+
+.panel-presentacion {
+    padding: 28px 30px;
+    margin-bottom: 25px;
+    border-left: 5px solid var(--color-acento);
+}
+
+.panel-presentacion h2 {
+    margin: 0 0 10px;
+    color: var(--color-principal);
+    font-size: 25px;
+}
+
+.panel-presentacion p {
+    margin: 0;
+    color: var(--color-secundario);
+}
+
+.presentacion-acciones {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.badge,
+.rol,
+.estado-stock {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.rol,
+.estado-stock {
+    white-space: nowrap;
+}
+
+.badge-cliente,
+.rol-cliente {
+    background-color: var(--color-fondo-cliente);
+    color: var(--color-rol-cliente);
+}
+
+.rol-vendedor,
+.stock-normal {
+    background-color: var(--color-fondo-exito);
+    color: var(--color-estado-exito);
+}
+
+.stock-critico {
+    background-color: var(--color-fondo-error);
+    color: var(--color-error);
+}
+
+.rol-administrador {
+    background-color: var(--color-fondo-admin);
+    color: var(--color-rol-admin);
+}
+
+.badge-sesion {
+    background-color: var(--color-fondo);
+    color: var(--color-marca);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.mensaje-error {
+    min-height: 14px;
+    margin-top: 5px;
+    margin-bottom: 0;
+    color: var(--color-error);
+    font-size: 12px;
+}
+
+.mensaje-exito {
+    color: var(--color-exito);
+    font-weight: bold;
+}
+
+.mensaje-exito-formulario {
+    min-height: 20px;
+    margin: 0 0 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.mensaje-vacio {
+    display: none;
+    padding: 45px 30px;
+    text-align: center;
+}
+
+.mensaje-vacio i {
+    color: var(--color-acento);
+    font-size: 38px;
+    margin-bottom: 15px;
+}
+
+.mensaje-vacio h3 {
+    margin: 0 0 10px;
+    color: var(--color-principal);
+}
+
+.mensaje-vacio p {
+    color: var(--color-texto-suave);
+}
+
+.mensaje-vacio a {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: var(--color-acento);
+    color: var(--color-blanco);
+    border-radius: 7px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 800px) {
+    .presentacion-usuarios {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 900px) {
+    .presentacion-productos {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.herramientas-admin {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 18px 20px;
+    margin-bottom: 25px;
+}
+
+.listado-admin {
+    padding: 22px;
+    margin-bottom: 25px;
+}
+
+.listado-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.listado-cabecera h2 {
+    margin: 0;
+    color: var(--color-principal);
+    font-size: 23px;
+}
+
+.listado-cabecera p {
+    margin: 0;
+    color: var(--color-texto-suave);
+    font-size: 13px;
+}
+
+.mensaje-listado-vacio {
+    display: none;
+    padding: 30px;
+    margin: 0;
+    text-align: center;
+    color: var(--color-texto-suave);
+}
+
+@media (max-width: 1100px) {
+    .herramientas-admin {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 700px) {
+    .herramientas-admin {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .herramientas-admin .btn-listado {
+        width: 100%;
+    }
+
+    .listado-cabecera {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+.mensaje-exito-producto {
+    color: var(--color-estado-exito);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.tarjeta-producto,
+.producto-completo {
+    background-color: var(--color-blanco);
+    border-style: solid;
+    border-color: #FFC0CB;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.tarjeta-producto h3,
+.producto-completo h3 {
+    color: var(--color-secundario);
+    font-size: 16px;
+    margin: 10px 0px;
+}
+
+.tarjeta-producto img,
+.producto-completo img {
+    width: 100%;
+    border-radius: var(--radio-base);
+}
+
+/* ===== Origen: css/main.css ===== */
+
+.boton-icono {
+    color: var(--color-principal);
+    text-decoration: none;
+    font-size: 25px;
+    padding: 8px;
+}
+
+.boton-IniciarSesion {
+    background-color: var(--color-principal);
+    color: var(--color-blanco);
+    padding: 15px 22px;
+    text-decoration: none;
+    border-radius: 10px;
+}
+
+.boton-CerrarSesion {
+    background-color: var(--color-principal);
+    color: var(--color-blanco);
+    padding: 15px 22px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.boton-CerrarSesion:hover {
+    background-color: var(--color-secundario);
+}
+
+.texto-dorado {
+    color: var(--color-acento);
+    font-size: 25px;
+}
+
+.boton-dorado {
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: var(--radio-base);
+    font-weight: bold;
+}
+
+.boton-producto {
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 0px;
+    font-size: 14px;
+}
+
+.boton-ver-todos {
+    display: inline-block;
+}
+
+.boton-blog {
+    background-color: #C89B6D;
+    color: var(--color-blanco);
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: var(--radio-base);
+    display: inline-block;
+    margin-top: 10px;
+}
+
+/* Separador editorial compartido: medidas idénticas. */
+:is(#contacto-presentacion, #blog-presentacion) h2::after {
+    content: "";
+    display: block;
+    width: 70px;
+    height: 4px;
+    background-color: var(--color-acento);
+    margin: 10px auto 0px;
+    border-radius: 5px;
+}
+
+/* Separador editorial compartido: medidas idénticas. */
+:is(#historia, #mision, #valores, #desarrolladores, #compromiso, #ubicacion) h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: var(--color-acento);
+    margin: 10px auto 0px;
+    border-radius: 5px;
+}
+
+/* Separador editorial compartido: medidas idénticas. */
+:is(#informacion-contacto, #formulario-contacto) h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: var(--color-acento);
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+/* Variantes Bootstrap / React Bootstrap: mismos tonos de la marca. */
+.btn-primary {
+    --bs-btn-bg: var(--color-acento);
+    --bs-btn-border-color: var(--color-acento);
+    --bs-btn-color: var(--color-blanco);
+    --bs-btn-hover-bg: var(--color-acento-hover);
+    --bs-btn-hover-border-color: var(--color-acento-hover);
+    --bs-btn-hover-color: var(--color-blanco);
+    --bs-btn-active-bg: var(--color-acento-hover);
+    --bs-btn-active-border-color: var(--color-acento-hover);
+}
+.btn-secondary {
+    --bs-btn-bg: var(--color-secundario);
+    --bs-btn-border-color: var(--color-secundario);
+    --bs-btn-color: var(--color-blanco);
+    --bs-btn-hover-bg: var(--color-principal);
+    --bs-btn-hover-border-color: var(--color-principal);
+    --bs-btn-hover-color: var(--color-blanco);
+}

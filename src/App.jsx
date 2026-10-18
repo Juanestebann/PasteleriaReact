@@ -1,5 +1,6 @@
 
 import { Routes, Route } from 'react-router'
+
 import LayoutTienda from './componentes/plantillas/LayoutTienda'
 import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
@@ -32,7 +33,7 @@ import {
 function App() {
   // Sesión temporal utilizada únicamente para probar las rutas
   const sesionPrueba = {
-    rol: 'null'
+    rol: 'null',
   }
 
   return (
@@ -77,12 +78,27 @@ function App() {
         }
       >
         <Route path="/admin" element={<LayoutAdmin />}>
-          <Route path="productos/nuevo" element={<NuevoProducto />} />
-          <Route path="productos/:codigo/editar" element={<EditarProducto />} />
+          <Route
+            path="productos/nuevo"
+            element={<NuevoProducto />}
+          />
+          <Route
+            path="productos/:codigo/editar"
+            element={<EditarProducto />}
+          />
           <Route path="usuarios" element={<UsuariosAdmin />} />
-          <Route path="usuarios/nuevo" element={<NuevoUsuario />} />
-          <Route path="usuarios/:run" element={<VerUsuario />} />
-          <Route path="usuarios/:run/editar" element={<EditarUsuario />} />
+          <Route
+            path="usuarios/nuevo"
+            element={<NuevoUsuario />}
+          />
+          <Route
+            path="usuarios/:run"
+            element={<VerUsuario />}
+          />
+          <Route
+            path="usuarios/:run/editar"
+            element={<EditarUsuario />}
+          />
         </Route>
       </Route>
     </Routes>
