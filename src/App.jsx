@@ -6,7 +6,6 @@ import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
 
 import {
-  Inicio,
   Catalogo,
   DetalleProducto,
   Carrito,
@@ -18,6 +17,8 @@ import {
   Contacto,
   NoEncontrada,
 } from './paginas/tienda/PaginasProvisionales'
+
+import Inicio from './paginas/tienda/Inicio'
 
 import {
   InicioAdmin,
