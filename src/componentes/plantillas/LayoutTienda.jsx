@@ -4,12 +4,17 @@
 // pie de página de la pastelería.
 
 import { Outlet } from 'react-router'
+import Encabezado from '../organismos/Encabezado'
 
 function LayoutTienda() {
     return (
-        <div>
-            <Outlet />
-        </div>
+        <>
+            <Encabezado />
+
+            <main>
+                <Outlet />
+            </main>
+        </>
     )
 }
 
