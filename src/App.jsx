@@ -9,16 +9,16 @@ import {
   Catalogo,
   DetalleProducto,
   Carrito,
-  Registro,
   Blogs,
   DetalleBlog,
-} from './paginas/tienda/PaginasProvisionales' // S06: se quitó Login de aquí
+} from './paginas/tienda/PaginasProvisionales' // S06: se quitó Login · S08: se quitó Registro
 
 import Inicio from './paginas/tienda/Inicio'
 import Nosotros from './paginas/tienda/Nosotros'
 import Contacto from './paginas/tienda/Contacto'
 import NoEncontrada from './paginas/tienda/NoEncontrada'
 import Login from './paginas/tienda/Login' // S06: la página real
+import Registro from './paginas/tienda/Registro' // S08: la página real
 import {
   CLAVE_USUARIOS,
   CLAVE_SESION,
@@ -69,6 +69,12 @@ function App() {
     navegar('/')
   }
 
+  // S08: el registro agrega al cliente a la lista y deja su sesión iniciada (igual que la Ev1)
+  function registrarUsuario(usuario) {
+    setUsuarios((actuales) => [...actuales, usuario])
+    setSesion(crearSesion(usuario))
+  }
+
   return (
     <Routes>
       {/* RUTAS PÚBLICAS */}
@@ -81,7 +87,11 @@ function App() {
         <Route path="producto/:codigo" element={<DetalleProducto />} />
         <Route path="carrito" element={<Carrito />} />
         <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
-        <Route path="registro" element={<Registro />} />
+        {/* S08 */}
+        <Route
+          path="registro"
+          element={<Registro usuarios={usuarios} onRegistrar={registrarUsuario} />}
+        />
         <Route path="nosotros" element={<Nosotros />} />
         <Route path="blogs" element={<Blogs />} />
         <Route path="blogs/:id" element={<DetalleBlog />} />
