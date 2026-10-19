@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router'
 
-function TarjetaProducto({ producto, onAgregar }) {
+function TarjetaProducto({ producto, onAgregar, variante = 'normal' }) {
     const {
         codigo,
         nombre,
@@ -10,21 +10,61 @@ function TarjetaProducto({ producto, onAgregar }) {
         stock
     } = producto
 
-    const precioFormateado = new Intl.NumberFormat(
-        'es-CL',
-        {
-            style: 'currency',
-            currency: 'CLP',
-            maximumFractionDigits: 0
-        }
-    ).format(precio)
-
     const sinStock = stock <= 0
+    const puedeAgregar = typeof onAgregar === 'function'
+    const esCatalogo = variante === 'catalogo'
+
+    const precioFormateado = '$' +
+        precio.toLocaleString('es-CL') +
+        (esCatalogo ? ' CLP' : '')
 
     function manejarAgregar() {
-        if (typeof onAgregar === 'function' && !sinStock) {
+        if (puedeAgregar && !sinStock) {
             onAgregar(producto)
         }
+    }
+
+    if (esCatalogo) {
+        return (
+            <article
+                className="producto-completo"
+                data-categoria={producto.categoria}
+                data-codigo={codigo}
+            >
+                <img
+                    src={imagen}
+                    alt={nombre}
+                    loading="lazy"
+                />
+
+                <h3>{nombre}</h3>
+
+                <p>{precioFormateado}</p>
+
+                <section className="acciones-producto">
+                    <button
+                        type="button"
+                        className="boton-agregar"
+                        onClick={manejarAgregar}
+                        disabled={!puedeAgregar || sinStock}
+                        aria-label={`Agregar ${nombre} al carrito`}
+                        title={
+                            !puedeAgregar
+                                ? 'Disponible cuando se integre el carrito'
+                                : sinStock
+                                    ? 'Producto sin stock'
+                                    : 'Añadir al carrito'
+                        }
+                    >
+                        Añadir
+                    </button>
+
+                    <Link to={`/producto/${codigo}`}>
+                        Ver detalle
+                    </Link>
+                </section>
+            </article>
+        )
     }
 
     return (
@@ -46,7 +86,7 @@ function TarjetaProducto({ producto, onAgregar }) {
                 Ver producto
             </Link>
 
-            {typeof onAgregar === 'function' && (
+            {puedeAgregar && (
                 <button
                     type="button"
                     className="boton-producto"

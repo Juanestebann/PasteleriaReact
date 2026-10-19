@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 
@@ -5,7 +6,6 @@ import LayoutTienda from './componentes/plantillas/LayoutTienda'
 import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
 import {
-  Catalogo,
   DetalleProducto,
   Carrito,
   Blogs,
@@ -13,6 +13,7 @@ import {
 } from './paginas/tienda/PaginasProvisionales' // S06: se quitó Login · S08: se quitó Registro
 
 import Inicio from './paginas/tienda/Inicio'
+import Catalogo from './paginas/tienda/Catalogo'
 import Nosotros from './paginas/tienda/Nosotros'
 import Contacto from './paginas/tienda/Contacto'
 import NoEncontrada from './paginas/tienda/NoEncontrada'
