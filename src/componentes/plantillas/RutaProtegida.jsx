@@ -16,7 +16,8 @@ function RutaProtegida({ sesion, perfilesPermitidos }) {
     }
 
     // Usuario autenticado, pero sin permisos
-    if (!perfilesPermitidos.includes(sesion.rol)) {
+    // S06: el perfil se guarda como tipoUsuario (contrato acordado en el informe)
+    if (!perfilesPermitidos.includes(sesion.tipoUsuario)) {
         return (
             <main>
                 <h1>403 - Acceso denegado</h1>
