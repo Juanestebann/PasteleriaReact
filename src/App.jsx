@@ -13,12 +13,12 @@ import {
   Registro,
   Blogs,
   DetalleBlog,
-  NoEncontrada,
 } from './paginas/tienda/PaginasProvisionales'
 
 import Inicio from './paginas/tienda/Inicio'
 import Nosotros from './paginas/tienda/Nosotros'
 import Contacto from './paginas/tienda/Contacto'
+import NoEncontrada from './paginas/tienda/NoEncontrada'
 import {
   InicioAdmin,
   ProductosAdmin,

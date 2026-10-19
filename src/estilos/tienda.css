@@ -1842,3 +1842,53 @@ header:has(> #marca)>#acciones-header {
         text-align: center;
     }
 }
+
+/* J11 - Página no encontrada */
+.pagina-no-encontrada {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 65vh;
+    padding: 60px 20px;
+    background-color: #FFF5E1;
+}
+
+.contenedor-no-encontrada {
+    max-width: 600px;
+    text-align: center;
+}
+
+.contenedor-no-encontrada h1 {
+    font-size: 100px;
+    font-weight: 700;
+    color: #D89B2B;
+    margin-bottom: 10px;
+}
+
+.contenedor-no-encontrada h2 {
+    font-size: 32px;
+    color: #3B1F0F;
+    margin-bottom: 20px;
+}
+
+.contenedor-no-encontrada p {
+    font-size: 18px;
+    color: #5D4037;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.contenedor-no-encontrada .btn {
+    display: inline-block;
+    text-decoration: none;
+}
+
+@media (max-width: 576px) {
+    .contenedor-no-encontrada h1 {
+        font-size: 72px;
+    }
+
+    .contenedor-no-encontrada h2 {
+        font-size: 25px;
+    }
+}
