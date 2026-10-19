@@ -6,11 +6,10 @@ import LayoutTienda from './componentes/plantillas/LayoutTienda'
 import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
 import {
-  Carrito,
   Blogs,
   DetalleBlog,
 } from './paginas/tienda/PaginasProvisionales' // S06: se quitó Login · S08: se quitó Registro
-
+import Carrito from './paginas/tienda/Carrito'
 import Inicio from './paginas/tienda/Inicio'
 import Catalogo from './paginas/tienda/Catalogo'
 import Nosotros from './paginas/tienda/Nosotros'
