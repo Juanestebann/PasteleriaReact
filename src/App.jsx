@@ -1,12 +1,11 @@
 
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
-
+import DetalleProducto from './paginas/tienda/DetalleProducto'
 import LayoutTienda from './componentes/plantillas/LayoutTienda'
 import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
 import {
-  DetalleProducto,
   Carrito,
   Blogs,
   DetalleBlog,
