@@ -38,6 +38,14 @@ export function esRunValido(run) {
     return digitoCalculado === digitoIngresado
 }
 
+// Muestra el RUN con puntos y guion para que se lea mejor: 123456785 → 12.345.678-5
+// (se guarda sin puntos ni guion; esto es solo para mostrarlo en pantalla)
+export function formatearRun(run) {
+    const texto = String(run ?? '').trim().toUpperCase()
+    if (texto.length < 2) return texto || '-'
+    const cuerpo = texto.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return `${cuerpo}-${texto.slice(-1)}`
+}
 export function validarRun(run) {
     const texto = String(run).trim()
     if (texto === '') return 'El RUN es obligatorio.'

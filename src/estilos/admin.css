@@ -629,3 +629,171 @@
 #admin-aplicacion {
     background-color: var(--color-fondo-suave);
 }
+
+/* ===== S10 · Gestión de usuarios (React) ===== */
+
+/* Los títulos de los paneles vuelven a negrita (Bootstrap los deja en 500) */
+.panel-presentacion h2,
+.listado-cabecera h2 {
+    font-weight: 700;
+}
+
+/* Tarjetas de resumen: mismo estilo que "Total productos" / "Stock crítico" */
+#usuarios-resumen {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.tarjeta-resumen {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarjeta-resumen:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(59, 31, 15, 0.12);
+}
+
+.tarjeta-resumen h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-principal);
+}
+
+.tarjeta-resumen p {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-acento);
+}
+
+/* Celda de usuario: avatar con iniciales + nombre y correo */
+.celda-usuario {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.celda-usuario strong {
+    display: block;
+    color: var(--color-principal);
+}
+
+.celda-usuario small {
+    color: var(--color-texto-suave);
+}
+
+/* Avatar chico de la tabla (distinto del #avatar-usuario grande de "Ver usuario") */
+.avatar-usuario {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: var(--color-fondo-cliente);
+    color: #9A5B13;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.acciones-tabla {
+    display: inline-flex;
+    gap: 8px;
+}
+
+/* Estado vacío con ícono y botón para limpiar filtros */
+.estado-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 35px 20px;
+    text-align: center;
+}
+
+.estado-vacio p {
+    margin: 0;
+}
+
+.estado-vacio-icono {
+    font-size: 34px;
+}
+
+/* Tablet: tarjetas de resumen de 2 en 2 */
+@media (max-width: 992px) {
+    #usuarios-resumen {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* En celular cada fila de la tabla se muestra como una tarjeta */
+@media (max-width: 768px) {
+    .tabla-usuarios thead {
+        display: none;
+    }
+
+    .tabla-usuarios,
+    .tabla-usuarios tbody,
+    .tabla-usuarios tr,
+    .tabla-usuarios td {
+        display: block;
+        width: 100%;
+    }
+
+    .tabla-usuarios tr {
+        margin-bottom: 14px;
+        padding: 6px 14px;
+        border: 1px solid var(--color-borde-suave);
+        border-radius: var(--radio-panel);
+    }
+
+    .tabla-usuarios td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--color-borde-suave);
+        text-align: right;
+    }
+
+    .tabla-usuarios td:last-child {
+        border-bottom: none;
+    }
+
+    /* La etiqueta de cada dato sale del atributo data-label del JSX */
+    .tabla-usuarios td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--color-principal);
+        text-align: left;
+    }
+
+    /* La celda del usuario va arriba, sin etiqueta, como título de la tarjeta */
+    .tabla-usuarios td[data-label="Usuario"] {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .tabla-usuarios td[data-label="Usuario"]::before {
+        content: none;
+    }
+}
+
+/* Celular chico: tarjetas de resumen de 2 en 2, con el ícono arriba */
+@media (max-width: 480px) {
+    #usuarios-resumen {
+        gap: 12px;
+    }
+
+    .tarjeta-resumen {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+        padding: 16px 10px;
+    }
+}

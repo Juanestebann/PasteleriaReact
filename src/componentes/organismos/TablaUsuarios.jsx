@@ -3,6 +3,7 @@
 // Ahora recibe la lista por props y la dibuja con .map().
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { formatearRun } from '../../utils/validaciones'
 
 const ROLES = ['Cliente', 'Vendedor', 'Administrador']
 
@@ -13,7 +14,12 @@ function claseRol(rol) {
     return 'rol rol-cliente'
 }
 
-function TablaUsuarios({ usuarios = [] }) {
+// Iniciales para el avatar: "José Cardoza" → "JC"
+function iniciales(usuario) {
+    return `${usuario.nombre?.[0] ?? ''}${usuario.apellidos?.[0] ?? ''}`.toUpperCase() || '?'
+}
+
+function TablaUsuarios({ usuarios = [], children }) {
     const [busqueda, setBusqueda] = useState('')
     const [rol, setRol] = useState('Todos')
 
@@ -29,6 +35,13 @@ function TablaUsuarios({ usuarios = [] }) {
         return coincideTexto && coincideRol
     })
 
+    const hayFiltros = texto !== '' || rol !== 'Todos'
+
+    function limpiarFiltros() {
+        setBusqueda('')
+        setRol('Todos')
+    }
+
     return (
         <>
             {/* HERRAMIENTAS: buscador y filtro */}
@@ -38,7 +51,7 @@ function TablaUsuarios({ usuarios = [] }) {
                     <input
                         type="search"
                         id="buscar-usuario"
-                        placeholder="Buscar usuario..."
+                        placeholder="Buscar por nombre, RUN o correo..."
                         aria-label="Buscar usuario"
                         value={busqueda}
                         onChange={(evento) => setBusqueda(evento.target.value)}
@@ -61,6 +74,9 @@ function TablaUsuarios({ usuarios = [] }) {
                         ))}
                     </select>
                 </section>
+
+                {/* Acción extra que manda la página (por ejemplo, el botón "Nuevo usuario") */}
+                {children}
             </section>
 
             {/* LISTADO */}
@@ -71,17 +87,22 @@ function TablaUsuarios({ usuarios = [] }) {
                 </section>
 
                 {visibles.length === 0 ? (
-                    <p id="mensaje-sin-usuarios" className="mensaje-listado-vacio">
-                        No existen usuarios registrados.
-                    </p>
+                    <section id="mensaje-sin-usuarios" className="mensaje-listado-vacio estado-vacio">
+                        <span className="estado-vacio-icono" aria-hidden="true">👥</span>
+                        <p>{hayFiltros ? 'Ningún usuario coincide con la búsqueda.' : 'No existen usuarios registrados.'}</p>
+                        {hayFiltros && (
+                            <button type="button" className="btn btn-secundario" onClick={limpiarFiltros}>
+                                Limpiar filtros
+                            </button>
+                        )}
+                    </section>
                 ) : (
                     <section id="tabla-contenedor" className="tabla-contenedor">
-                        <table id="tabla-usuarios" className="tabla-admin">
+                        <table id="tabla-usuarios" className="tabla-admin tabla-usuarios">
                             <thead>
                                 <tr>
+                                    <th>Usuario</th>
                                     <th>RUN</th>
-                                    <th>Nombre</th>
-                                    <th>Correo</th>
                                     <th>Región</th>
                                     <th>Comuna</th>
                                     <th>Rol</th>
@@ -91,25 +112,37 @@ function TablaUsuarios({ usuarios = [] }) {
                             <tbody>
                                 {visibles.map((usuario) => (
                                     <tr key={usuario.run || usuario.correo}>
-                                        <td>{usuario.run || '-'}</td>
-                                        <td>
-                                            {usuario.nombre} {usuario.apellidos}
+                                        {/* data-label: en celular cada fila se muestra como tarjeta con su etiqueta */}
+                                        <td data-label="Usuario">
+                                            <span className="celda-usuario">
+                                                <span className="avatar-usuario" aria-hidden="true">
+                                                    {iniciales(usuario)}
+                                                </span>
+                                                <span>
+                                                    <strong>
+                                                        {usuario.nombre} {usuario.apellidos}
+                                                    </strong>
+                                                    <small>{usuario.correo || '-'}</small>
+                                                </span>
+                                            </span>
                                         </td>
-                                        <td>{usuario.correo || '-'}</td>
-                                        <td>{usuario.region || '-'}</td>
-                                        <td>{usuario.comuna || '-'}</td>
-                                        <td>
+                                        <td data-label="RUN">{formatearRun(usuario.run)}</td>
+                                        <td data-label="Región">{usuario.region || '-'}</td>
+                                        <td data-label="Comuna">{usuario.comuna || '-'}</td>
+                                        <td data-label="Rol">
                                             <span className={claseRol(usuario.tipoUsuario)}>
                                                 {usuario.tipoUsuario || 'Cliente'}
                                             </span>
                                         </td>
-                                        <td>
-                                            <Link className="boton-ver" to={`/admin/usuarios/${usuario.run}`}>
-                                                👁 Ver
-                                            </Link>
-                                            <Link className="boton-editar" to={`/admin/usuarios/${usuario.run}/editar`}>
-                                                ✏ Editar
-                                            </Link>
+                                        <td data-label="Acciones">
+                                            <span className="acciones-tabla">
+                                                <Link className="boton-ver" to={`/admin/usuarios/${usuario.run}`}>
+                                                    👁 Ver
+                                                </Link>
+                                                <Link className="boton-editar" to={`/admin/usuarios/${usuario.run}/editar`}>
+                                                    ✏ Editar
+                                                </Link>
+                                            </span>
                                         </td>
                                     </tr>
                                 ))}

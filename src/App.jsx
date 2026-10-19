@@ -4,7 +4,6 @@ import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó use
 import LayoutTienda from './componentes/plantillas/LayoutTienda'
 import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
-
 import {
   Catalogo,
   DetalleProducto,
@@ -19,6 +18,7 @@ import Contacto from './paginas/tienda/Contacto'
 import NoEncontrada from './paginas/tienda/NoEncontrada'
 import Login from './paginas/tienda/Login' // S06: la página real
 import Registro from './paginas/tienda/Registro' // S08: la página real
+import UsuariosAdmin from './paginas/admin/UsuariosAdmin' // S10: la página real
 import {
   CLAVE_USUARIOS,
   CLAVE_SESION,
@@ -33,11 +33,10 @@ import {
   ProductosAdmin,
   NuevoProducto,
   EditarProducto,
-  UsuariosAdmin,
   NuevoUsuario,
   VerUsuario,
   EditarUsuario,
-} from './paginas/admin/PaginasAdminProvisionales'
+} from './paginas/admin/PaginasAdminProvisionales' // S10: se quitó UsuariosAdmin
 
 function App() {
   const navegar = useNavigate()
@@ -132,7 +131,8 @@ function App() {
             path="productos/:codigo/editar"
             element={<EditarProducto />}
           />
-          <Route path="usuarios" element={<UsuariosAdmin />} />
+          {/* S10 */}
+          <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
           <Route
             path="usuarios/nuevo"
             element={<NuevoUsuario />}

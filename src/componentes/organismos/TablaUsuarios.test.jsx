@@ -48,7 +48,8 @@ describe('S09 - TablaUsuarios', () => {
         await usuario.type(screen.getByLabelText('Buscar usuario'), 'vendedor@')
 
         expect(screen.getByText('Mostrando 1 usuario(s)')).toBeInTheDocument()
-        expect(screen.getByText('222222222')).toBeInTheDocument()
+        // El RUN se guarda sin puntos, pero en la tabla se muestra formateado
+        expect(screen.getByText('22.222.222-2')).toBeInTheDocument()
     })
 
     it('los botones Ver y Editar llevan a la página del usuario por su RUN', () => {
@@ -62,5 +63,18 @@ describe('S09 - TablaUsuarios', () => {
         renderizarTabla([])
 
         expect(screen.getByText('No existen usuarios registrados.')).toBeInTheDocument()
+    })
+
+    it('si la búsqueda no encuentra nada, el botón Limpiar filtros vuelve a mostrar todo', async () => {
+        const usuario = userEvent.setup()
+        renderizarTabla()
+
+        await usuario.type(screen.getByLabelText('Buscar usuario'), 'no existe')
+        expect(screen.getByText('Ningún usuario coincide con la búsqueda.')).toBeInTheDocument()
+
+        await usuario.click(screen.getByRole('button', { name: 'Limpiar filtros' }))
+
+        expect(screen.getByText('Mostrando 3 usuario(s)')).toBeInTheDocument()
+        expect(screen.getByLabelText('Buscar usuario')).toHaveValue('')
     })
 })
