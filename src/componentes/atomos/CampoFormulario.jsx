@@ -14,6 +14,8 @@ function CampoFormulario({
     autoComplete,
     maxLength,
     disabled = false,
+    modificado = false,
+    ayuda = '',
     children,
 }) {
     const idError = `error-${id}`
@@ -30,8 +32,16 @@ function CampoFormulario({
     }
 
     return (
-        <section className="campo-formulario">
-            <label htmlFor={id}>{etiqueta}</label>
+        <section className={modificado ? 'campo-formulario campo-modificado' : 'campo-formulario'}>
+            {/* En editar, si el valor cambió se muestra la etiqueta "Modificado" al lado */}
+            {modificado ? (
+                <div className="campo-cabecera">
+                    <label htmlFor={id}>{etiqueta}</label>
+                    <span className="etiqueta-modificado">Modificado</span>
+                </div>
+            ) : (
+                <label htmlFor={id}>{etiqueta}</label>
+            )}
 
             {tipo === 'select' ? (
                 <select {...propiedades}>{children}</select>
@@ -44,6 +54,8 @@ function CampoFormulario({
                     maxLength={maxLength}
                 />
             )}
+
+            {ayuda && <small className="ayuda-campo">{ayuda}</small>}
 
             {/* role="alert" hace que el lector de pantalla anuncie el error */}
             <p className="mensaje-error" id={idError} role={error ? 'alert' : undefined}>

@@ -6,7 +6,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import FormularioUsuario from '../../componentes/organismos/FormularioUsuario'
-import { formatearRun } from '../../utils/validaciones'
+import TarjetaPerfilUsuario from '../../componentes/moleculas/TarjetaPerfilUsuario'
+import { camposModificados } from '../../utils/usuarios'
 
 // Texto de cada modo (títulos, botón y mensaje), con los mismos ids de la Ev1
 const textosPorModo = {
@@ -32,6 +33,8 @@ function EditorUsuario({ usuarios = [], onCrear, onActualizar }) {
     const { run } = useParams()
     const navegar = useNavigate()
     const [runGuardado, setRunGuardado] = useState(null)
+    // Datos que el administrador va escribiendo (para la vista previa)
+    const [vistaPrevia, setVistaPrevia] = useState({})
 
     // Si la URL trae :run estamos editando; si no, creando
     const modo = run ? 'editar' : 'nuevo'
@@ -85,33 +88,28 @@ function EditorUsuario({ usuarios = [], onCrear, onActualizar }) {
         <>
             {presentacion}
 
-            <section id={textos.idTarjeta} className="panel panel-con-borde">
-                {/* En editar se muestra a quién se está modificando (mismo avatar e insignia de la tabla) */}
-                {usuarioEditado && (
-                    <section className="editor-usuario-resumen">
-                        <span className="avatar-usuario" aria-hidden="true">
-                            {`${usuarioEditado.nombre?.[0] ?? ''}${usuarioEditado.apellidos?.[0] ?? ''}`.toUpperCase()}
-                        </span>
-                        <span>
-                            <strong>
-                                {usuarioEditado.nombre} {usuarioEditado.apellidos}
-                            </strong>
-                            <small>RUN {formatearRun(usuarioEditado.run)}</small>
-                        </span>
-                    </section>
-                )}
-
-                {/* key: si cambia el RUN de la URL, el formulario parte de nuevo con los datos correctos */}
-                <FormularioUsuario
-                    key={run ?? 'nuevo'}
+            <section className="editor-usuario-grid">
+                {/* Vista previa que cambia mientras se escribe */}
+                <TarjetaPerfilUsuario
+                    usuario={vistaPrevia}
                     modo={modo}
-                    usuarioInicial={usuarioEditado}
-                    usuariosExistentes={usuarios}
-                    onGuardar={guardar}
-                    onCancelar={() => navegar('/admin/usuarios')}
-                    textoBoton={textos.textoBoton}
-                    mensajeExito={textos.mensajeExito}
+                    cambios={camposModificados(usuarioEditado, vistaPrevia)}
                 />
+
+                <section id={textos.idTarjeta} className="panel panel-con-borde">
+                    {/* key: si cambia el RUN de la URL, el formulario parte de nuevo con los datos correctos */}
+                    <FormularioUsuario
+                        key={run ?? 'nuevo'}
+                        modo={modo}
+                        usuarioInicial={usuarioEditado}
+                        usuariosExistentes={usuarios}
+                        onGuardar={guardar}
+                        onCancelar={() => navegar('/admin/usuarios')}
+                        textoBoton={textos.textoBoton}
+                        mensajeExito={textos.mensajeExito}
+                        onCambio={setVistaPrevia}
+                    />
+                </section>
             </section>
         </>
     )

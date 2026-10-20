@@ -797,6 +797,7 @@
         padding: 16px 10px;
     }
 }
+
 /* ===== S11 · Nuevo y editar usuario (React) ===== */
 
 /* En la Ev1 .mensaje-vacio partía oculto y el JS lo mostraba; en React se dibuja solo cuando corresponde */
@@ -804,24 +805,6 @@
     display: block;
 }
 
-/* Resumen del usuario que se está editando (mismo avatar de la tabla) */
-.editor-usuario-resumen {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-bottom: 20px;
-    margin-bottom: 22px;
-    border-bottom: 1px solid var(--color-borde-suave);
-}
-
-.editor-usuario-resumen strong {
-    display: block;
-    color: var(--color-principal);
-}
-
-.editor-usuario-resumen small {
-    color: var(--color-texto-suave);
-}
 /* ===== S12 · Ver usuario (React) ===== */
 
 /* Nombre en negrita (Bootstrap deja los h2 en 500) */
@@ -843,4 +826,242 @@
 .dato-usuario:hover {
     border-color: var(--color-acento);
     transform: translateY(-2px);
+}
+
+/* ===== Diseño · Editor de usuario (vista previa + secciones) ===== */
+
+/* Dos columnas: vista previa a la izquierda, formulario a la derecha */
+.editor-usuario-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+/* Tarjeta de vista previa: se queda fija al bajar por el formulario */
+.tarjeta-perfil-editor {
+    position: sticky;
+    top: 20px;
+    overflow: hidden;
+}
+
+.perfil-editor-portada {
+    height: 86px;
+    background: linear-gradient(135deg, var(--color-fondo-cliente), #F3D29A);
+}
+
+.perfil-editor-cuerpo {
+    margin-top: -44px;
+    padding: 0 22px 22px;
+    text-align: center;
+}
+
+.perfil-editor-avatar {
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--color-blanco);
+    border-radius: 50%;
+    background-color: var(--color-fondo-cliente);
+    box-shadow: 0 4px 12px rgba(59, 31, 15, 0.12);
+    color: #9A5B13;
+    font-size: 28px;
+    font-weight: 700;
+    transition: transform 0.2s ease;
+}
+
+.tarjeta-perfil-editor:hover .perfil-editor-avatar {
+    transform: scale(1.05);
+}
+
+.perfil-editor-cuerpo h3 {
+    margin: 0 0 8px;
+    color: var(--color-principal);
+    font-size: 19px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.rol-sin-asignar {
+    background-color: var(--color-fondo-suave);
+    color: var(--color-texto-suave);
+}
+
+.perfil-editor-datos {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.perfil-editor-datos li {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-borde-suave);
+    color: var(--color-secundario);
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.perfil-editor-estado {
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 10px;
+    background-color: var(--color-fondo-suave);
+    text-align: left;
+}
+
+.perfil-editor-estado h4 {
+    margin: 0 0 8px;
+    color: var(--color-marca);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.perfil-editor-estado p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.chip-cambio {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background-color: var(--color-fondo-cliente);
+    color: #9A5B13;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.barra-progreso {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 4px;
+    background-color: var(--color-borde-suave);
+}
+
+.barra-progreso span {
+    display: block;
+    height: 100%;
+    background-color: var(--color-acento);
+    transition: width 0.3s ease;
+}
+
+/* Secciones del formulario: una línea punteada separa cada sección de la anterior */
+.seccion-formulario + .seccion-formulario {
+    margin-top: 6px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--color-borde-panel);
+}
+
+.seccion-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.seccion-icono {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: var(--color-fondo-cliente);
+    font-size: 19px;
+}
+
+.seccion-cabecera h3 {
+    margin: 0;
+    color: var(--color-principal);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.seccion-cabecera p {
+    margin: 2px 0 0;
+    color: var(--color-texto-suave);
+    font-size: 13px;
+}
+
+/* Campo bloqueado (RUN en editar) */
+.formulario-usuario input:disabled {
+    background-color: var(--color-fondo-suave);
+    color: var(--color-texto-suave);
+    cursor: not-allowed;
+}
+
+.ayuda-campo {
+    margin-top: 6px;
+    color: var(--color-texto-suave);
+    font-size: 12px;
+}
+
+/* Campo que cambió respecto del original */
+.campo-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.etiqueta-modificado {
+    margin-bottom: 7px;
+    padding: 2px 9px;
+    border-radius: 10px;
+    background-color: var(--color-fondo-cliente);
+    color: #9A5B13;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.campo-modificado input,
+.campo-modificado select {
+    border-color: var(--color-acento);
+    background-color: #FFFBF3;
+}
+
+/* Barra de acciones: estado a la izquierda, botones a la derecha */
+.estado-cambios {
+    margin-right: auto;
+    align-self: center;
+    color: var(--color-texto-suave);
+    font-size: 14px;
+}
+
+#boton-guardar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Tablet y celular: una sola columna, la vista previa arriba */
+@media (max-width: 992px) {
+    .editor-usuario-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjeta-perfil-editor {
+        position: static;
+    }
+}
+
+@media (max-width: 800px) {
+    /* En una columna, el margen del campo ya separa; no hace falta el gap de la grilla */
+    .seccion-formulario .fila-formulario {
+        gap: 0;
+    }
+
+    .estado-cambios {
+        margin-right: 0;
+        text-align: center;
+    }
 }

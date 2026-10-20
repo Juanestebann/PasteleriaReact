@@ -72,3 +72,22 @@ export function formatearFecha(fecha) {
     const [anio, mes, dia] = fecha.split('-')
     return `${dia}-${mes}-${anio}`
 }
+// Diseño editor: nombre visible de cada campo del formulario de usuario
+export const ETIQUETAS_CAMPOS = {
+    tipoUsuario: 'Rol',
+    nombre: 'Nombre',
+    apellidos: 'Apellidos',
+    correo: 'Correo',
+    fechaNacimiento: 'Fecha de nacimiento',
+    region: 'Región',
+    comuna: 'Comuna',
+    direccion: 'Dirección',
+}
+
+// Diseño editor: devuelve los campos que cambiaron respecto del usuario original
+export function camposModificados(original, actual) {
+    if (!original || !actual) return []
+    return Object.keys(ETIQUETAS_CAMPOS).filter(
+        (campo) => String(actual[campo] ?? '').trim() !== String(original[campo] ?? '').trim()
+    )
+}

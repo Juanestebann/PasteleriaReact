@@ -5,7 +5,7 @@
 import CampoFormulario from '../atomos/CampoFormulario'
 import { regiones, obtenerComunas } from '../../datos/ubicaciones'
 
-function SelectorRegionComuna({ region, comuna, onCambiar, errores = {} }) {
+function SelectorRegionComuna({ region, comuna, onCambiar, errores = {}, modificados = {} }) {
     // Las comunas se calculan a partir de la región elegida
     const comunas = obtenerComunas(region)
 
@@ -24,6 +24,7 @@ function SelectorRegionComuna({ region, comuna, onCambiar, errores = {} }) {
                 valor={region}
                 onChange={cambiarRegion}
                 error={errores.region}
+                modificado={modificados.region}
             >
                 <option value="">Seleccione una región</option>
                 {regiones.map((r) => (
@@ -40,6 +41,7 @@ function SelectorRegionComuna({ region, comuna, onCambiar, errores = {} }) {
                 valor={comuna}
                 onChange={(evento) => onCambiar('comuna', evento.target.value)}
                 error={errores.comuna}
+                modificado={modificados.comuna}
             >
                 <option value="">Seleccione una comuna</option>
                 {comunas.map((c) => (
