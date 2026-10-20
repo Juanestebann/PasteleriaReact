@@ -128,4 +128,38 @@ describe('C05 - Utilidades del carrito', () => {
         expect(actualizado[0].cantidad).toBe(3)
         expect(actualizado).not.toBe(original)
     })
+
+    // C11 - Pruebas de regresión de stock
+
+    it('permite agregar exactamente las unidades disponibles', () => {
+        const resultado = agregarProducto(
+            [],
+            { ...productoPrueba, stock: 2 },
+            2
+        )
+
+        expect(resultado).toHaveLength(1)
+        expect(resultado[0].cantidad).toBe(2)
+    })
+
+    it('no permite agregar cantidades mayores al stock disponible', () => {
+        const producto = { ...productoPrueba, stock: 2 }
+        const carrito = agregarProducto([], producto, 2)
+
+        const resultado = agregarProducto(carrito, producto, 1)
+
+        expect(resultado[0].cantidad).toBe(2)
+    })
+
+    it('no permite aumentar la cantidad por encima del stock', () => {
+        const carrito = agregarProducto(
+            [],
+            { ...productoPrueba, stock: 2 },
+            2
+        )
+
+        const resultado = aumentarCantidad(carrito, 'TC001')
+
+        expect(resultado[0].cantidad).toBe(2)
+    })
 })

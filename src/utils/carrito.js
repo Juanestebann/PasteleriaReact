@@ -2,6 +2,16 @@
 const CUPON_DESCUENTO = 'felices10'
 const PORCENTAJE_DESCUENTO = 0.10
 
+function obtenerStock(producto) {
+    const stock = producto.stock
+
+    if (Number.isInteger(stock) && stock >= 0) {
+        return stock
+    }
+
+    return null
+}
+
 export function agregarProducto(carrito, producto, cantidad = 1) {
     const cantidadNueva = Number(cantidad)
 
@@ -13,15 +23,31 @@ export function agregarProducto(carrito, producto, cantidad = 1) {
         item => item.codigo === producto.codigo
     )
 
+    const stock = obtenerStock(producto)
+
     if (productoExistente) {
+        const stockDisponible = stock ?? obtenerStock(productoExistente)
+        const cantidadTotal = productoExistente.cantidad + cantidadNueva
+
+        if (stockDisponible !== null && cantidadTotal > stockDisponible) {
+            return carrito
+        }
+
         return carrito.map(item =>
             item.codigo === producto.codigo
                 ? {
                     ...item,
-                    cantidad: item.cantidad + cantidadNueva
+                    cantidad: cantidadTotal,
+                    ...(stockDisponible !== null
+                        ? { stock: stockDisponible }
+                        : {})
                 }
                 : item
         )
+    }
+
+    if (stock !== null && cantidadNueva > stock) {
+        return carrito
     }
 
     return [
@@ -32,7 +58,8 @@ export function agregarProducto(carrito, producto, cantidad = 1) {
             precio: producto.precio,
             imagen: producto.imagen,
             descripcion: producto.descripcion,
-            cantidad: cantidadNueva
+            cantidad: cantidadNueva,
+            ...(stock !== null ? { stock } : {})
         }
     ]
 }
@@ -48,19 +75,41 @@ export function cambiarCantidad(carrito, codigo, cantidad) {
         return eliminarProducto(carrito, codigo)
     }
 
-    return carrito.map(item =>
-        item.codigo === codigo
-            ? { ...item, cantidad: cantidadNueva }
-            : item
-    )
+    return carrito.map(item => {
+        if (item.codigo !== codigo) {
+            return item
+        }
+
+        const stock = obtenerStock(item)
+
+        if (stock !== null && cantidadNueva > stock) {
+            return item
+        }
+
+        return {
+            ...item,
+            cantidad: cantidadNueva
+        }
+    })
 }
 
 export function aumentarCantidad(carrito, codigo) {
-    return carrito.map(item =>
-        item.codigo === codigo
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-    )
+    return carrito.map(item => {
+        if (item.codigo !== codigo) {
+            return item
+        }
+
+        const stock = obtenerStock(item)
+
+        if (stock !== null && item.cantidad >= stock) {
+            return item
+        }
+
+        return {
+            ...item,
+            cantidad: item.cantidad + 1
+        }
+    })
 }
 
 export function disminuirCantidad(carrito, codigo) {

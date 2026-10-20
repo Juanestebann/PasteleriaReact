@@ -37,6 +37,7 @@ function Carrito({ productos = productosIniciales }) {
 
         return {
             ...item,
+            precio: productoActual?.precio ?? item.precio,
             stock: productoActual?.stock ?? 0
         }
     })

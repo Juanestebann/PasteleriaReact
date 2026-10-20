@@ -13,10 +13,10 @@ const productoPrueba = {
     cantidad: 2
 }
 
-function renderizarCarrito() {
+function renderizarCarrito(productos) {
     return render(
         <MemoryRouter>
-            <Carrito />
+            <Carrito productos={productos} />
         </MemoryRouter>
     )
 }
@@ -168,6 +168,73 @@ describe('C07 - Página del carrito', () => {
 
         expect(
             screen.getByText('Torta Cuadrada de Chocolate')
+        ).toBeInTheDocument()
+    })
+
+    // C11 - Pruebas de regresión de stock y precios
+
+    it('respeta el stock actualizado del inventario', () => {
+        prepararCarrito()
+
+        const productosActualizados = [
+            {
+                codigo: 'TC001',
+                precio: 45000,
+                stock: 2
+            }
+        ]
+
+        renderizarCarrito(productosActualizados)
+
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: /Aumentar cantidad/
+            })
+        )
+
+        expect(screen.getByText('2')).toBeInTheDocument()
+        expect(screen.getAllByText('$90.000')).toHaveLength(3)
+    })
+
+    it('actualiza el precio y recalcula el descuento del carrito', () => {
+        prepararCarrito()
+
+        const productosActualizados = [
+            {
+                codigo: 'TC001',
+                nombre: 'Torta Cuadrada de Chocolate',
+                precio: 48000,
+                stock: 10
+            }
+        ]
+
+        renderizarCarrito(productosActualizados)
+
+        const resumen = screen.getByText('Resumen de compra')
+            .closest('section')
+
+        // Subtotal y total son iguales antes de aplicar el cupón.
+        expect(
+            within(resumen).getAllByText('$96.000')
+        ).toHaveLength(2)
+
+        fireEvent.change(
+            screen.getByLabelText('Código de descuento'),
+            { target: { value: 'felices10' } }
+        )
+
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: 'Aplicar cupón'
+            })
+        )
+
+        expect(
+            screen.getByText('-$9.600')
+        ).toBeInTheDocument()
+
+        expect(
+            within(resumen).getByText('$86.400')
         ).toBeInTheDocument()
     })
 })

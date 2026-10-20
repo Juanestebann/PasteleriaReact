@@ -138,4 +138,93 @@ describe('C10 - EditorProducto', () => {
             name: 'Listado de productos',
         })).toBeTruthy()
     })
+
+    // C11 - Pruebas adicionales de creación y edición
+
+    it('crea un producto válido y regresa al listado', () => {
+        const onCrear = vi.fn()
+
+        renderizarEditor({ onCrear })
+
+        fireEvent.change(screen.getByLabelText('Código'), {
+            target: { value: 'TEST001' },
+        })
+
+        fireEvent.change(screen.getByLabelText('Nombre'), {
+            target: { value: 'Torta de prueba' },
+        })
+
+        fireEvent.change(screen.getByLabelText('Precio'), {
+            target: { value: '15000' },
+        })
+
+        fireEvent.change(screen.getByLabelText('Imagen'), {
+            target: { value: '/img/torta-prueba.png' },
+        })
+
+        fireEvent.change(screen.getByLabelText('Descripción'), {
+            target: { value: 'Torta utilizada para pruebas' },
+        })
+
+        fireEvent.change(screen.getByLabelText('Categoría'), {
+            target: { value: 'cuadradas' },
+        })
+
+        fireEvent.change(screen.getByLabelText('Stock'), {
+            target: { value: '10' },
+        })
+
+        fireEvent.change(screen.getByLabelText('Stock crítico'), {
+            target: { value: '3' },
+        })
+
+        fireEvent.click(screen.getByRole('button', {
+            name: 'Crear producto',
+        }))
+
+        expect(onCrear).toHaveBeenCalledTimes(1)
+
+        expect(onCrear).toHaveBeenCalledWith(
+            expect.objectContaining({
+                codigo: 'TEST001',
+                nombre: 'Torta de prueba',
+                precio: 15000,
+                imagen: '/img/torta-prueba.png',
+                descripcion: 'Torta utilizada para pruebas',
+                categoria: 'cuadradas',
+                stock: 10,
+                stockCritico: 3,
+            })
+        )
+
+        expect(screen.getByRole('heading', {
+            name: 'Listado de productos',
+        })).toBeInTheDocument()
+    })
+
+    it('mantiene el código original al editar un producto', () => {
+        const onActualizar = vi.fn()
+
+        renderizarEditor({
+            ruta: '/admin/productos/TC001/editar',
+            onActualizar,
+        })
+
+        expect(screen.getByLabelText('Código')).toBeDisabled()
+
+        fireEvent.change(screen.getByLabelText('Precio'), {
+            target: { value: '50000' },
+        })
+
+        fireEvent.click(screen.getByRole('button', {
+            name: 'Guardar cambios',
+        }))
+
+        expect(onActualizar).toHaveBeenCalledWith(
+            expect.objectContaining({
+                codigo: 'TC001',
+                precio: 50000,
+            })
+        )
+    })
 })
