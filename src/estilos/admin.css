@@ -1065,3 +1065,119 @@
         text-align: center;
     }
 }
+
+
+/* ===== C08 · Administración de productos (React) ===== */
+
+.productos-admin-react #productos-presentacion {
+    margin-bottom: 25px;
+}
+
+.productos-admin-react #productos-presentacion h2 {
+    font-weight: 700;
+}
+
+.productos-admin-react .herramientas-productos-admin {
+    display: flex;
+    align-items: end;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding: 16px 20px;
+}
+
+.productos-admin-react .busqueda-productos-admin {
+    flex: 1;
+    min-width: 180px;
+}
+
+.productos-admin-react .filtro-categoria-productos {
+    flex: 0 0 210px;
+}
+
+.productos-admin-react .herramientas-productos-admin label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-principal);
+}
+
+.productos-admin-react #productos-filtro select {
+    width: 100%;
+}
+
+.productos-admin-react #boton-nuevo-producto {
+    flex-shrink: 0;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.productos-admin-react .listado-productos-admin {
+    overflow: hidden;
+}
+
+.productos-admin-react #productos-listado-header {
+    margin-bottom: 15px;
+}
+
+.productos-admin-react #productos-listado-header h2 {
+    margin: 0 0 5px;
+    color: var(--color-principal);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.productos-admin-react #productos-listado-header p {
+    margin: 0 0 6px;
+    font-size: 13px;
+}
+
+.productos-admin-react #tabla-productos {
+    min-width: 1120px;
+}
+
+.productos-admin-react .estado-producto-admin {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.productos-admin-react .estado-producto-disponible {
+    background-color: #E8F5E9;
+    color: #24723B;
+}
+
+.productos-admin-react .estado-producto-critico {
+    background-color: #FDE7E7;
+    color: #A92727;
+}
+
+@media (max-width: 900px) {
+    .productos-admin-react .herramientas-productos-admin {
+        flex-wrap: wrap;
+    }
+
+    .productos-admin-react .filtro-categoria-productos {
+        flex: 1 1 210px;
+    }
+}
+
+@media (max-width: 600px) {
+    .productos-admin-react .herramientas-productos-admin {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .productos-admin-react .busqueda-productos-admin,
+    .productos-admin-react .filtro-categoria-productos {
+        width: 100%;
+        flex: auto;
+    }
+
+    .productos-admin-react #boton-nuevo-producto {
+        text-align: center;
+    }
+}

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 import DetalleProducto from './paginas/tienda/DetalleProducto'
@@ -19,6 +20,7 @@ import Registro from './paginas/tienda/Registro' // S08: la página real
 import UsuariosAdmin from './paginas/admin/UsuariosAdmin' // S10: la página real
 import EditorUsuario from './paginas/admin/EditorUsuario' // S11: nuevo y editar usuario
 import VerUsuario from './paginas/admin/VerUsuario' // S12: detalle del usuario
+import ProductosAdmin from './paginas/admin/ProductosAdmin'
 import {
   CLAVE_USUARIOS,
   CLAVE_SESION,
@@ -30,7 +32,6 @@ import {
 } from './utils/usuarios' // S06
 import {
   InicioAdmin,
-  ProductosAdmin,
   NuevoProducto,
   EditarProducto,
 } from './paginas/admin/PaginasAdminProvisionales' // S10: se quitó UsuariosAdmin · S11: NuevoUsuario y EditarUsuario · S12: VerUsuario
@@ -120,7 +121,14 @@ function App() {
       >
         <Route path="/admin" element={<LayoutAdmin />}>
           <Route index element={<InicioAdmin />} />
-          <Route path="productos" element={<ProductosAdmin />} />
+          <Route
+            path="productos"
+            element={
+              <ProductosAdmin
+                puedeGestionar={sesion?.tipoUsuario === 'Administrador'}
+              />
+            }
+          />
         </Route>
       </Route>
 
