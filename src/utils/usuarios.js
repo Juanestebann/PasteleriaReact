@@ -53,3 +53,22 @@ export function crearSesion(usuario) {
 export function esPerfilInterno(sesion) {
     return sesion?.tipoUsuario === 'Administrador' || sesion?.tipoUsuario === 'Vendedor'
 }
+
+// S12: iniciales para el avatar: "José Cardoza" → "JC"
+export function obtenerIniciales(usuario) {
+    return `${usuario?.nombre?.[0] ?? ''}${usuario?.apellidos?.[0] ?? ''}`.toUpperCase() || '?'
+}
+
+// S12: clase CSS de la insignia según el rol (las mismas de la Ev1)
+export function claseRol(rol) {
+    if (rol === 'Administrador') return 'rol rol-administrador'
+    if (rol === 'Vendedor') return 'rol rol-vendedor'
+    return 'rol rol-cliente'
+}
+
+// S12: la fecha se guarda como "2004-03-15" (input date); se muestra como "15-03-2004"
+export function formatearFecha(fecha) {
+    if (!fecha) return '-'
+    const [anio, mes, dia] = fecha.split('-')
+    return `${dia}-${mes}-${anio}`
+}

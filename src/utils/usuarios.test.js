@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { leerJSON, leerUsuarios, buscarPorCredenciales, crearSesion, esPerfilInterno } from './usuarios'
+import {
+    leerJSON,
+    leerUsuarios,
+    buscarPorCredenciales,
+    crearSesion,
+    esPerfilInterno,
+    obtenerIniciales,
+    claseRol,
+    formatearFecha,
+} from './usuarios'
 
 describe('S06 - Usuarios y sesión en localStorage', () => {
 
@@ -53,5 +62,14 @@ describe('S06 - Usuarios y sesión en localStorage', () => {
         expect(sesion).not.toHaveProperty('contrasena')
         expect(esPerfilInterno(sesion)).toBe(true)
         expect(esPerfilInterno({ tipoUsuario: 'Cliente' })).toBe(false)
+    })
+
+    // S12
+    it('arma las iniciales, la clase del rol y la fecha para mostrar', () => {
+        expect(obtenerIniciales({ nombre: 'José', apellidos: 'Cardoza' })).toBe('JC')
+        expect(claseRol('Vendedor')).toBe('rol rol-vendedor')
+        expect(claseRol(undefined)).toBe('rol rol-cliente')
+        expect(formatearFecha('2004-03-15')).toBe('15-03-2004')
+        expect(formatearFecha('')).toBe('-')
     })
 })

@@ -822,3 +822,25 @@
 .editor-usuario-resumen small {
     color: var(--color-texto-suave);
 }
+/* ===== S12 · Ver usuario (React) ===== */
+
+/* Nombre en negrita (Bootstrap deja los h2 en 500) */
+#perfil-ver-usuario h2 {
+    font-weight: 700;
+}
+
+/* En la Ev1 el avatar tenía un ícono; ahora muestra las iniciales */
+#avatar-usuario {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* Cada dato se resalta con el color de acento al pasar el mouse */
+.dato-usuario {
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.dato-usuario:hover {
+    border-color: var(--color-acento);
+    transform: translateY(-2px);
+}
