@@ -15,7 +15,7 @@ const categorias = [
     { codigo: 'especiales', nombre: 'Tortas Especiales' }
 ]
 
-function Catalogo() {
+function Catalogo({ productos = productosIniciales }) {
     const [searchParams, setSearchParams] = useSearchParams()
 
     const categoriaURL = searchParams.get('categoria') || 'todos'
@@ -26,7 +26,7 @@ function Catalogo() {
 
     const busqueda = searchParams.get('buscar') || ''
 
-    const productosFiltrados = productosIniciales.filter(producto => {
+    const productosFiltrados = productos.filter(producto => {
         const coincideCategoria =
             categoriaSeleccionada === 'todos' ||
             producto.categoria === categoriaSeleccionada

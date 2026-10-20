@@ -3,11 +3,11 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { productosIniciales } from '../../datos/productos'
 
-function DetalleProducto() {
+function DetalleProducto({ productos = productosIniciales }) {
     const { codigo } = useParams()
     const [cantidad, setCantidad] = useState(1)
 
-    const producto = productosIniciales.find(
+    const producto = productos.find(
         item => item.codigo === codigo
     )
 

@@ -21,7 +21,7 @@ import {
 const formatearPrecio = valor =>
     '$' + valor.toLocaleString('es-CL')
 
-function Carrito() {
+function Carrito({ productos = productosIniciales }) {
     const [carrito, setCarrito] = useState(leerCarrito)
     const [codigoCupon, setCodigoCupon] = useState('')
     const [cuponAplicado, setCuponAplicado] = useState('')
@@ -31,7 +31,7 @@ function Carrito() {
     }, [carrito])
 
     const productosCarrito = carrito.map(item => {
-        const productoActual = productosIniciales.find(
+        const productoActual = productos.find(
             producto => producto.codigo === item.codigo
         )
 

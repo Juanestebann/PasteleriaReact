@@ -21,6 +21,13 @@ import UsuariosAdmin from './paginas/admin/UsuariosAdmin' // S10: la página rea
 import EditorUsuario from './paginas/admin/EditorUsuario' // S11: nuevo y editar usuario
 import VerUsuario from './paginas/admin/VerUsuario' // S12: detalle del usuario
 import ProductosAdmin from './paginas/admin/ProductosAdmin'
+import EditorProducto from './paginas/admin/EditorProducto'
+import {
+  leerProductos,
+  guardarProductos,
+  crearProducto,
+  actualizarProducto,
+} from './utils/productos'
 import {
   CLAVE_USUARIOS,
   CLAVE_SESION,
@@ -32,8 +39,6 @@ import {
 } from './utils/usuarios' // S06
 import {
   InicioAdmin,
-  NuevoProducto,
-  EditarProducto,
 } from './paginas/admin/PaginasAdminProvisionales' // S10: se quitó UsuariosAdmin · S11: NuevoUsuario y EditarUsuario · S12: VerUsuario
 
 function App() {
@@ -43,6 +48,7 @@ function App() {
   // Se leen de localStorage al abrir la página y bajan por props a quien los necesita.
   const [usuarios, setUsuarios] = useState(leerUsuarios)
   const [sesion, setSesion] = useState(() => leerJSON(CLAVE_SESION, null))
+  const [productos, setProductos] = useState(leerProductos)
 
   // Cada vez que cambian, se guardan en localStorage (sobreviven a un F5)
   useEffect(() => {
@@ -53,6 +59,10 @@ function App() {
     if (sesion) guardarJSON(CLAVE_SESION, sesion)
     else localStorage.removeItem(CLAVE_SESION)
   }, [sesion])
+
+  useEffect(() => {
+    guardarProductos(productos)
+  }, [productos])
 
   // Devuelve el usuario si el correo y la contraseña son correctos, o null si no
   function iniciarSesion(correo, contrasena) {
@@ -86,6 +96,14 @@ function App() {
     if (sesion?.run === usuarioEditado.run) setSesion(crearSesion(usuarioEditado))
   }
 
+  function crearNuevoProducto(producto) {
+    setProductos((actuales) => crearProducto(actuales, producto))
+  }
+
+  function guardarProductoEditado(producto) {
+    setProductos((actuales) => actualizarProducto(actuales, producto))
+  }
+
   return (
     <Routes>
       {/* RUTAS PÚBLICAS */}
@@ -94,9 +112,9 @@ function App() {
         element={<LayoutTienda usuario={sesion} onCerrarSesion={cerrarSesion} />}
       >
         <Route index element={<Inicio />} />
-        <Route path="productos" element={<Catalogo />} />
-        <Route path="producto/:codigo" element={<DetalleProducto />} />
-        <Route path="carrito" element={<Carrito />} />
+        <Route path="productos" element={<Catalogo productos={productos} />} />
+        <Route path="producto/:codigo" element={<DetalleProducto productos={productos} />} />
+        <Route path="carrito" element={<Carrito productos={productos} />} />
         <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
         {/* S08 */}
         <Route
@@ -125,6 +143,7 @@ function App() {
             path="productos"
             element={
               <ProductosAdmin
+                productos={productos}
                 puedeGestionar={sesion?.tipoUsuario === 'Administrador'}
               />
             }
@@ -144,11 +163,23 @@ function App() {
         <Route path="/admin" element={<LayoutAdmin />}>
           <Route
             path="productos/nuevo"
-            element={<NuevoProducto />}
+            element={
+              <EditorProducto
+                productos={productos}
+                onCrear={crearNuevoProducto}
+                onActualizar={guardarProductoEditado}
+              />
+            }
           />
           <Route
             path="productos/:codigo/editar"
-            element={<EditarProducto />}
+            element={
+              <EditorProducto
+                productos={productos}
+                onCrear={crearNuevoProducto}
+                onActualizar={guardarProductoEditado}
+              />
+            }
           />
           {/* S10 */}
           <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
