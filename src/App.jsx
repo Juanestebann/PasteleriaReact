@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 import DetalleProducto from './paginas/tienda/DetalleProducto'
@@ -18,6 +17,7 @@ import NoEncontrada from './paginas/tienda/NoEncontrada'
 import Login from './paginas/tienda/Login' // S06: la página real
 import Registro from './paginas/tienda/Registro' // S08: la página real
 import UsuariosAdmin from './paginas/admin/UsuariosAdmin' // S10: la página real
+import EditorUsuario from './paginas/admin/EditorUsuario' // S11: nuevo y editar usuario
 import {
   CLAVE_USUARIOS,
   CLAVE_SESION,
@@ -32,10 +32,8 @@ import {
   ProductosAdmin,
   NuevoProducto,
   EditarProducto,
-  NuevoUsuario,
   VerUsuario,
-  EditarUsuario,
-} from './paginas/admin/PaginasAdminProvisionales' // S10: se quitó UsuariosAdmin
+} from './paginas/admin/PaginasAdminProvisionales' // S10: se quitó UsuariosAdmin · S11: se quitaron NuevoUsuario y EditarUsuario
 
 function App() {
   const navegar = useNavigate()
@@ -71,6 +69,20 @@ function App() {
   function registrarUsuario(usuario) {
     setUsuarios((actuales) => [...actuales, usuario])
     setSesion(crearSesion(usuario))
+  }
+
+  // S11: el administrador crea un usuario (a diferencia del registro, no cambia la sesión)
+  function crearUsuario(usuario) {
+    setUsuarios((actuales) => [...actuales, usuario])
+  }
+
+  // S11: reemplaza al usuario que tiene el mismo RUN por su versión editada
+  function actualizarUsuario(usuarioEditado) {
+    setUsuarios((actuales) =>
+      actuales.map((usuario) => (usuario.run === usuarioEditado.run ? usuarioEditado : usuario))
+    )
+    // Si el administrador se editó a sí mismo, también se actualiza su sesión
+    if (sesion?.run === usuarioEditado.run) setSesion(crearSesion(usuarioEditado))
   }
 
   return (
@@ -132,9 +144,10 @@ function App() {
           />
           {/* S10 */}
           <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
+          {/* S11 */}
           <Route
             path="usuarios/nuevo"
-            element={<NuevoUsuario />}
+            element={<EditorUsuario usuarios={usuarios} onCrear={crearUsuario} />}
           />
           <Route
             path="usuarios/:run"
@@ -142,7 +155,7 @@ function App() {
           />
           <Route
             path="usuarios/:run/editar"
-            element={<EditarUsuario />}
+            element={<EditorUsuario usuarios={usuarios} onActualizar={actualizarUsuario} />}
           />
         </Route>
       </Route>

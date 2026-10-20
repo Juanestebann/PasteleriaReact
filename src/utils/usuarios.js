@@ -22,14 +22,15 @@ export function guardarJSON(clave, valor) {
 
 // Devuelve los usuarios guardados, asegurando que las cuentas internas
 // (administrador y vendedor) siempre existan, igual que en login.js.
+// S11: solo se agregan si faltan (por RUN); si el admin las editó, se respeta la versión editada.
 export function leerUsuarios() {
     const guardados = leerJSON(CLAVE_USUARIOS, [])
     const lista = Array.isArray(guardados) ? guardados : []
 
-    const sinInternos = lista.filter(
-        (usuario) => !usuariosIniciales.some((interno) => interno.correo === usuario.correo?.toLowerCase())
+    const internosFaltantes = usuariosIniciales.filter(
+        (interno) => !lista.some((usuario) => usuario.run === interno.run)
     )
-    return [...usuariosIniciales, ...sinInternos]
+    return [...internosFaltantes, ...lista]
 }
 
 // Busca un usuario por correo y contraseña. Devuelve el usuario o null.

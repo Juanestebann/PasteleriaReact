@@ -28,6 +28,18 @@ describe('S06 - Usuarios y sesión en localStorage', () => {
         expect(correos).toEqual(['admin@gmail.com', 'vendedor@gmail.com', 'jose@duoc.cl'])
     })
 
+    // S11
+    it('si una cuenta interna fue editada, se respeta la versión editada', () => {
+        const vendedorEditado = { run: '222222222', nombre: 'Vendedora', correo: 'vendedor@gmail.com', tipoUsuario: 'Vendedor' }
+        localStorage.setItem('usuarios', JSON.stringify([vendedorEditado]))
+
+        const usuarios = leerUsuarios()
+
+        // No se duplica: 1 administrador (agregado) + el vendedor editado
+        expect(usuarios).toHaveLength(2)
+        expect(usuarios.find((usuario) => usuario.run === '222222222').nombre).toBe('Vendedora')
+    })
+
     it('encuentra al usuario con correo y contraseña correctos, sin importar mayúsculas', () => {
         const usuarios = leerUsuarios()
 
