@@ -63,9 +63,9 @@ function Encabezado({
                 <section id="sesion-header">
                     {usuario ? (
                         <>
-                            <span>Hola, {usuario.nombre}</span>
+                            <span className="nombre-usuario"><span aria-hidden="true">👤 </span>Hola, {usuario.nombre}</span>
 
-                            <button type="button" onClick={onCerrarSesion}>
+                            <button type="button" className="boton-CerrarSesion" onClick={onCerrarSesion}>
                                 Cerrar sesión
                             </button>
                         </>

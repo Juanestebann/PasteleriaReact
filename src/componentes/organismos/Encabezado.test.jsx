@@ -74,4 +74,16 @@ describe('J04 - Encabezado', () => {
         expect(cerrarSesion).toHaveBeenCalledTimes(1)
     })
 
+    // PRUEBA 5: EL CONTADOR CAMBIA CUANDO CAMBIAN LAS PROPS
+    it('actualiza el contador cuando cambia la cantidad recibida', () => {
+        const vista = renderizarEncabezado({ cantidadCarrito: 2 })
+        expect(screen.getByRole('link', { name: 'Ver carrito, 2 productos' })).toBeInTheDocument()
+        vista.rerender(
+            <MemoryRouter>
+                <Encabezado cantidadCarrito={5} />
+            </MemoryRouter>
+        )
+        expect(screen.getByRole('link', { name: 'Ver carrito, 5 productos' })).toBeInTheDocument()
+    })
+
 })

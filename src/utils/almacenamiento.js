@@ -1,5 +1,6 @@
 
 export const CLAVE_CARRITO = 'carrito'
+export const EVENTO_CARRITO_ACTUALIZADO = 'carrito-actualizado'
 
 export function leerAlmacenamiento(clave, valorDefecto = null) {
     try {
@@ -44,5 +45,9 @@ export function guardarCarrito(carrito) {
         return false
     }
 
-    return guardarAlmacenamiento(CLAVE_CARRITO, carrito)
+    const guardado = guardarAlmacenamiento(CLAVE_CARRITO, carrito)
+    if (guardado && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(EVENTO_CARRITO_ACTUALIZADO))
+    }
+    return guardado
 }

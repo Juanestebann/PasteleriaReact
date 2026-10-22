@@ -1,15 +1,33 @@
 
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
+import { agregarProducto } from '../../utils/carrito'
+import { leerCarrito, guardarCarrito } from '../../utils/almacenamiento'
 import { productosIniciales } from '../../datos/productos'
 
 function DetalleProducto({ productos = productosIniciales }) {
     const { codigo } = useParams()
     const [cantidad, setCantidad] = useState(1)
+    const [mensajeCarrito, setMensajeCarrito] = useState('')
 
     const producto = productos.find(
         item => item.codigo === codigo
     )
+
+    function manejarAgregarCarrito() {
+        if (!producto || cantidadMaxima === 0) return
+        const carritoActual = leerCarrito()
+        const carritoNuevo = agregarProducto(carritoActual, producto, Math.min(cantidad, cantidadMaxima))
+        if (carritoNuevo === carritoActual) {
+            setMensajeCarrito('No se puede agregar esa cantidad: verifica el stock disponible en tu carrito.')
+            return
+        }
+        if (guardarCarrito(carritoNuevo)) {
+            setMensajeCarrito('Producto añadido al carrito correctamente.')
+        } else {
+            setMensajeCarrito('No se pudo guardar el carrito. Inténtalo nuevamente.')
+        }
+    }
 
     if (!producto) {
         return (
@@ -126,8 +144,8 @@ function DetalleProducto({ productos = productosIniciales }) {
                             id="agregar-carrito"
                             className="btn btn-compra"
                             type="button"
-                            disabled
-                            title="Disponible al integrar el carrito"
+                            onClick={manejarAgregarCarrito}
+                            disabled={cantidadMaxima === 0}
                         >
                             Añadir al carrito
                         </button>
@@ -138,7 +156,7 @@ function DetalleProducto({ productos = productosIniciales }) {
                         >
                             {cantidadMaxima === 0
                                 ? 'Producto sin stock.'
-                                : 'La compra estará disponible al integrar el carrito.'}
+                                : mensajeCarrito}
                         </p>
 
                         <section id="linea-final"></section>

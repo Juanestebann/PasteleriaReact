@@ -1,5 +1,5 @@
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router'
 import DetalleProducto from './DetalleProducto'
@@ -18,6 +18,7 @@ function renderizarDetalle(codigo = 'TC001') {
 }
 
 describe('C04 - Detalle de producto', () => {
+    beforeEach(() => localStorage.clear())
     it('muestra los datos del producto seleccionado', () => {
         renderizarDetalle()
 
@@ -101,13 +102,43 @@ describe('C04 - Detalle de producto', () => {
         ).toHaveAttribute('href', '/productos')
     })
 
-    it('mantiene deshabilitado el carrito temporalmente', () => {
+    it('permite añadir productos al carrito', () => {
         renderizarDetalle()
 
-        expect(
+        const boton = screen.getByRole('button', {
+            name: 'Añadir al carrito'
+        })
+
+        expect(boton).toBeEnabled()
+
+        fireEvent.click(boton)
+
+        const carrito = JSON.parse(localStorage.getItem('carrito'))
+
+        expect(carrito).toHaveLength(1)
+        expect(carrito[0].codigo).toBe('TC001')
+        expect(carrito[0].cantidad).toBe(1)
+    })
+
+    it('permite añadir la cantidad seleccionada', () => {
+        renderizarDetalle()
+
+        const selector = screen.getByRole('combobox', {
+            name: 'Cantidad'
+        })
+
+        fireEvent.change(selector, {
+            target: { value: '3' }
+        })
+
+        fireEvent.click(
             screen.getByRole('button', {
                 name: 'Añadir al carrito'
             })
-        ).toBeDisabled()
+        )
+
+        const carrito = JSON.parse(localStorage.getItem('carrito'))
+
+        expect(carrito[0].cantidad).toBe(3)
     })
 })

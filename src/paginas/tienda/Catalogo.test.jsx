@@ -1,5 +1,6 @@
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { leerCarrito } from '../../utils/almacenamiento'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
 import Catalogo from './Catalogo'
@@ -141,5 +142,34 @@ describe('C03 - Catálogo de productos', () => {
                 'No se encontraron productos para esta búsqueda.'
             )
         ).toBeInTheDocument()
+    })
+})
+
+
+describe('J04 - Añadir desde tarjeta del catálogo', () => {
+    beforeEach(() => localStorage.clear())
+
+    it('añade el producto al carrito directamente desde su tarjeta', () => {
+        renderizarCatalogo()
+        fireEvent.click(screen.getByRole('button', {
+            name: 'Agregar Torta Cuadrada de Frutas al carrito'
+        }))
+        const carrito = leerCarrito()
+        expect(carrito).toEqual(expect.arrayContaining([
+            expect.objectContaining({ codigo: 'TC002', cantidad: 1 })
+        ]))
+        expect(screen.getByText('Torta Cuadrada de Frutas añadido al carrito.')).toBeInTheDocument()
+    })
+
+    it('incrementa cantidad del mismo producto sin duplicar filas', () => {
+        renderizarCatalogo()
+        const boton = screen.getByRole('button', {
+            name: 'Agregar Torta Cuadrada de Frutas al carrito'
+        })
+        fireEvent.click(boton)
+        fireEvent.click(boton)
+        const carrito = leerCarrito()
+        expect(carrito.filter(item => item.codigo === 'TC002')).toHaveLength(1)
+        expect(carrito.find(item => item.codigo === 'TC002').cantidad).toBe(2)
     })
 })

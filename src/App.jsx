@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 import DetalleProducto from './paginas/tienda/DetalleProducto'
+import { leerCarrito, EVENTO_CARRITO_ACTUALIZADO } from './utils/almacenamiento'
+import { contarProductos } from './utils/carrito'
 import LayoutTienda from './componentes/plantillas/LayoutTienda'
 import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
@@ -49,6 +51,19 @@ function App() {
   const [usuarios, setUsuarios] = useState(leerUsuarios)
   const [sesion, setSesion] = useState(() => leerJSON(CLAVE_SESION, null))
   const [productos, setProductos] = useState(leerProductos)
+  // J04: contador compartido con el carrito real (incluye las cantidades).
+  const [cantidadCarrito, setCantidadCarrito] = useState(() => contarProductos(leerCarrito()))
+
+  useEffect(() => {
+    const actualizarContador = () => setCantidadCarrito(contarProductos(leerCarrito()))
+    // Evento propio: cambios en la misma pestaña; storage: otras pestañas.
+    window.addEventListener(EVENTO_CARRITO_ACTUALIZADO, actualizarContador)
+    window.addEventListener('storage', actualizarContador)
+    return () => {
+      window.removeEventListener(EVENTO_CARRITO_ACTUALIZADO, actualizarContador)
+      window.removeEventListener('storage', actualizarContador)
+    }
+  }, [])
 
   // Cada vez que cambian, se guardan en localStorage (sobreviven a un F5)
   useEffect(() => {
@@ -109,7 +124,7 @@ function App() {
       {/* RUTAS PÚBLICAS */}
       <Route
         path="/"
-        element={<LayoutTienda usuario={sesion} onCerrarSesion={cerrarSesion} />}
+        element={<LayoutTienda usuario={sesion} cantidadCarrito={cantidadCarrito} onCerrarSesion={cerrarSesion} />}
       >
         <Route index element={<Inicio />} />
         <Route path="productos" element={<Catalogo productos={productos} />} />

@@ -2,6 +2,9 @@
 import { useSearchParams } from 'react-router'
 import { productosIniciales } from '../../datos/productos'
 import TarjetaProducto from '../../componentes/moleculas/TarjetaProducto'
+import { agregarProducto } from '../../utils/carrito'
+import { leerCarrito, guardarCarrito } from '../../utils/almacenamiento'
+import { useState } from 'react'
 
 const categorias = [
     { codigo: 'todos', nombre: 'Todos' },
@@ -17,6 +20,23 @@ const categorias = [
 
 function Catalogo({ productos = productosIniciales }) {
     const [searchParams, setSearchParams] = useSearchParams()
+    const [mensajeCarrito, setMensajeCarrito] = useState('')
+
+    function manejarAgregar(producto) {
+        const carritoActual = leerCarrito()
+        const carritoNuevo = agregarProducto(carritoActual, producto, 1)
+
+        if (carritoNuevo === carritoActual) {
+            setMensajeCarrito(`No se pudo añadir ${producto.nombre}: se alcanzó el stock disponible.`)
+            return
+        }
+
+        if (guardarCarrito(carritoNuevo)) {
+            setMensajeCarrito(`${producto.nombre} añadido al carrito.`)
+        } else {
+            setMensajeCarrito('No se pudo guardar el carrito. Inténtalo de nuevo.')
+        }
+    }
 
     const categoriaURL = searchParams.get('categoria') || 'todos'
 
@@ -120,6 +140,8 @@ function Catalogo({ productos = productosIniciales }) {
                         : ' productos encontrados'}
                 </p>
 
+                <p role="status" aria-live="polite">{mensajeCarrito}</p>
+
                 {productosFiltrados.length > 0 ? (
                     <section
                         id="productos-completos"
@@ -130,6 +152,7 @@ function Catalogo({ productos = productosIniciales }) {
                                 key={producto.codigo}
                                 producto={producto}
                                 variante="catalogo"
+                                onAgregar={manejarAgregar}
                             />
                         ))}
                     </section>
