@@ -173,3 +173,20 @@ describe('J04 - Añadir desde tarjeta del catálogo', () => {
         expect(carrito.find(item => item.codigo === 'TC002').cantidad).toBe(2)
     })
 })
+
+describe('J06 - Inventario compartido en catálogo', () => {
+    it('muestra datos del inventario persistido', () => {
+        localStorage.setItem('productos', JSON.stringify([{
+            codigo: 'NEW001', nombre: 'Pastel nuevo', precio: 12000,
+            imagen: '/img/test.png', categoria: 'especiales', stock: 3,
+            stockCritico: 1, descripcion: 'Prueba'
+        }]))
+        try {
+            renderizarCatalogo()
+            expect(screen.getByText('Pastel nuevo')).toBeInTheDocument()
+            expect(screen.getByText('1 producto encontrado')).toBeInTheDocument()
+        } finally {
+            localStorage.removeItem('productos')
+        }
+    })
+})

@@ -3,14 +3,15 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { agregarProducto } from '../../utils/carrito'
 import { leerCarrito, guardarCarrito } from '../../utils/almacenamiento'
-import { productosIniciales } from '../../datos/productos'
+import { leerProductos } from '../../utils/productos'
 
-function DetalleProducto({ productos = productosIniciales }) {
+function DetalleProducto({ productos }) {
+    const inventario = productos ?? leerProductos()
     const { codigo } = useParams()
     const [cantidad, setCantidad] = useState(1)
     const [mensajeCarrito, setMensajeCarrito] = useState('')
 
-    const producto = productos.find(
+    const producto = inventario.find(
         item => item.codigo === codigo
     )
 
@@ -50,12 +51,12 @@ function DetalleProducto({ productos = productosIniciales }) {
     )
 
     const productosRelacionados = [
-        ...productosIniciales.filter(
+        ...inventario.filter(
             item =>
                 item.codigo !== producto.codigo &&
                 item.categoria === producto.categoria
         ),
-        ...productosIniciales.filter(
+        ...inventario.filter(
             item =>
                 item.codigo !== producto.codigo &&
                 item.categoria !== producto.categoria

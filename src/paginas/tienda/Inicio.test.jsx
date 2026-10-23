@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import '@testing-library/jest-dom/vitest'
 
 import Inicio from './Inicio'
+import { productosIniciales } from '../../datos/productos'
 
 // Limpia el DOM después de cada prueba
 afterEach(() => {
@@ -98,6 +99,19 @@ describe('J06 - Página Inicio', () => {
                 )
             ).toBe(true)
         })
+    })
+
+    it('utiliza el inventario guardado y sus precios actualizados', () => {
+        const editado = { ...productosIniciales[0], nombre: 'Torta de temporada', precio: 39000 }
+        localStorage.setItem('productos', JSON.stringify([editado]))
+        try {
+            renderizarInicio()
+            expect(screen.getByText('Torta de temporada')).toBeInTheDocument()
+            expect(screen.getByText('$39.000')).toBeInTheDocument()
+            expect(document.querySelectorAll('#productos article.producto')).toHaveLength(1)
+        } finally {
+            localStorage.removeItem('productos')
+        }
     })
 
     // PRUEBA 5: PROMOCIÓN

@@ -1,6 +1,6 @@
 
 import { useSearchParams } from 'react-router'
-import { productosIniciales } from '../../datos/productos'
+import { leerProductos } from '../../utils/productos'
 import TarjetaProducto from '../../componentes/moleculas/TarjetaProducto'
 import { agregarProducto } from '../../utils/carrito'
 import { leerCarrito, guardarCarrito } from '../../utils/almacenamiento'
@@ -18,7 +18,8 @@ const categorias = [
     { codigo: 'especiales', nombre: 'Tortas Especiales' }
 ]
 
-function Catalogo({ productos = productosIniciales }) {
+function Catalogo({ productos }) {
+    const inventario = productos ?? leerProductos()
     const [searchParams, setSearchParams] = useSearchParams()
     const [mensajeCarrito, setMensajeCarrito] = useState('')
 
@@ -46,7 +47,7 @@ function Catalogo({ productos = productosIniciales }) {
 
     const busqueda = searchParams.get('buscar') || ''
 
-    const productosFiltrados = productos.filter(producto => {
+    const productosFiltrados = inventario.filter(producto => {
         const coincideCategoria =
             categoriaSeleccionada === 'todos' ||
             producto.categoria === categoriaSeleccionada

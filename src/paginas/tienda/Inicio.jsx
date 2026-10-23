@@ -2,58 +2,11 @@
 import { Link } from 'react-router'
 
 
-const productosDestacados = [
-    {
-        codigo: 'TC001',
-        nombre: 'Torta Cuadrada de Chocolate',
-        precio: '$45.000 CLP',
-        imagen: '/img/Torta Cuadrada de Chocolate.png'
-    },
-    {
-        codigo: 'TC002',
-        nombre: 'Torta Cuadrada de Frutas',
-        precio: '$50.000 CLP',
-        imagen: '/img/Torta Cuadrada de Frutas.png'
-    },
-    {
-        codigo: 'TT001',
-        nombre: 'Torta Circular de Vainilla',
-        precio: '$40.000 CLP',
-        imagen: '/img/Torta Circular de Vainilla.png'
-    },
-    {
-        codigo: 'TT002',
-        nombre: 'Torta Circular de Manjar',
-        precio: '$42.000 CLP',
-        imagen: '/img/Torta Circular de Manjar.png'
-    },
-    {
-        codigo: 'PI001',
-        nombre: 'Mousse de Chocolate',
-        precio: '$5.000 CLP',
-        imagen: '/img/Mousse de Chocolate.png'
-    },
-    {
-        codigo: 'PI002',
-        nombre: 'Tiramisú Clásico',
-        precio: '$5.500 CLP',
-        imagen: '/img/Tiramisú Clásico.png'
-    },
-    {
-        codigo: 'PSA001',
-        nombre: 'Torta Sin Azúcar de Naranja',
-        precio: '$48.000 CLP',
-        imagen: '/img/Torta Sin Azúcar de Naranja.png'
-    },
-    {
-        codigo: 'PSA002',
-        nombre: 'Cheesecake Sin Azúcar',
-        precio: '$47.000 CLP',
-        imagen: '/img/Cheesecake Sin Azúcar.png'
-    }
-]
+import TarjetaProducto from '../../componentes/moleculas/TarjetaProducto'
+import { leerProductos } from '../../utils/productos'
 
-function Inicio() {
+function Inicio({ productos }) {
+    const productosDestacados = (productos ?? leerProductos()).slice(0, 8)
     return (
         <>
             {/* SECCIÓN PRINCIPAL */}
@@ -110,23 +63,7 @@ function Inicio() {
                 {/* PRODUCTOS DESTACADOS */}
                 <section id="productos">
                     {productosDestacados.map((producto) => (
-                        <article className="producto" key={producto.codigo}>
-                            <img
-                                src={producto.imagen}
-                                alt={producto.nombre}
-                            />
-
-                            <h3>{producto.nombre}</h3>
-
-                            <b>{producto.precio}</b>
-
-                            <Link
-                                className="boton-producto"
-                                to={`/producto/${producto.codigo}`}
-                            >
-                                Ver producto
-                            </Link>
-                        </article>
+                        <TarjetaProducto key={producto.codigo} producto={producto} />
                     ))}
                 </section>
 

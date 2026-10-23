@@ -142,3 +142,20 @@ describe('C04 - Detalle de producto', () => {
         expect(carrito[0].cantidad).toBe(3)
     })
 })
+
+describe('J06 - Inventario compartido en detalle', () => {
+    it('muestra precio actualizado desde almacenamiento', () => {
+        localStorage.setItem('productos', JSON.stringify([{
+            codigo: 'TC001', nombre: 'Torta actualizada', precio: 33000,
+            imagen: '/img/test.png', categoria: 'cuadradas', stock: 2,
+            stockCritico: 1, descripcion: 'Nueva descripción'
+        }]))
+        try {
+            renderizarDetalle('TC001')
+            expect(screen.getByRole('heading', { name: 'Torta actualizada' })).toBeInTheDocument()
+            expect(screen.getByText('$33.000 CLP')).toBeInTheDocument()
+        } finally {
+            localStorage.removeItem('productos')
+        }
+    })
+})
