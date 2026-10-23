@@ -1123,7 +1123,10 @@
 }
 
 .productos-admin-react #productos-listado-header h2 {
-    margin-bottom: 15px;
+    margin: 0 0 5px;
+    color: var(--color-principal);
+    font-size: 22px;
+    font-weight: 700;
 }
 
 .productos-admin-react #productos-listado-header p {
@@ -1179,4 +1182,25 @@
     .productos-admin-react #boton-nuevo-producto {
         text-align: center;
     }
+}
+
+/* ===== J14: Contadores del dashboard ===== */
+
+.contador-tarjeta-admin {
+    color: var(--color-acento);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    min-height: 0 !important;
+    margin: 8px 0 12px;
+}
+
+#tarjetas-admin .tarjeta-admin {
+    display: flex;
+    flex-direction: column;
+}
+
+#tarjetas-admin .tarjeta-admin a {
+    align-self: flex-start;
+    margin-top: auto;
 }

@@ -39,9 +39,7 @@ import {
   buscarPorCredenciales,
   crearSesion,
 } from './utils/usuarios' // S06
-import {
-  InicioAdmin,
-} from './paginas/admin/PaginasAdminProvisionales' // S10: se quitó UsuariosAdmin · S11: NuevoUsuario y EditarUsuario · S12: VerUsuario
+import InicioAdmin from './paginas/admin/InicioAdmin'
 
 function App() {
   const navegar = useNavigate()
@@ -156,7 +154,15 @@ function App() {
           sesion={sesion}
           onCerrarSesion={cerrarSesion}
         />}>
-          <Route index element={<InicioAdmin />} />
+          <Route
+            index
+            element={
+              <InicioAdmin
+                sesion={sesion}
+                productos={productos}
+              />
+            }
+          />
           <Route
             path="productos"
             element={
