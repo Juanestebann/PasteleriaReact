@@ -6,6 +6,7 @@
 :is(#nuevo-usuario-presentacion, #editar-usuario-presentacion) h2 {
     margin: 0 0 8px;
 }
+
 :is(#nuevo-usuario-presentacion, #editar-usuario-presentacion) #boton-volver {
     padding: 11px 17px;
     font-size: 14px;
@@ -367,13 +368,13 @@
     padding: 22px;
 }
 
-#acciones-rapidas > h2 {
+#acciones-rapidas>h2 {
     margin: 0 0 6px;
     color: var(--color-principal);
     font-size: 22px;
 }
 
-#acciones-rapidas > p {
+#acciones-rapidas>p {
     margin: 0 0 20px;
     color: var(--color-texto-suave);
     font-size: 14px;
@@ -955,7 +956,7 @@
 }
 
 /* Secciones del formulario: una línea punteada separa cada sección de la anterior */
-.seccion-formulario + .seccion-formulario {
+.seccion-formulario+.seccion-formulario {
     margin-top: 6px;
     padding-top: 24px;
     border-top: 1px dashed var(--color-borde-panel);
@@ -1055,6 +1056,7 @@
 }
 
 @media (max-width: 800px) {
+
     /* En una columna, el margen del campo ya separa; no hace falta el gap de la grilla */
     .seccion-formulario .fila-formulario {
         gap: 0;
@@ -1121,10 +1123,7 @@
 }
 
 .productos-admin-react #productos-listado-header h2 {
-    margin: 0 0 5px;
-    color: var(--color-principal);
-    font-size: 22px;
-    font-weight: 700;
+    margin-bottom: 15px;
 }
 
 .productos-admin-react #productos-listado-header p {

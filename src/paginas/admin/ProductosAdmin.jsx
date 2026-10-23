@@ -51,7 +51,7 @@ function ProductosAdmin({
     })
 
     return (
-        <main id="principal-admin" className="productos-admin-react">
+        <div className="productos-admin-react">
             <section
                 id="productos-presentacion"
                 className="panel panel-presentacion"
@@ -245,7 +245,7 @@ function ProductosAdmin({
                     </p>
                 )}
             </section>
-        </main>
+        </div>
     )
 }
 

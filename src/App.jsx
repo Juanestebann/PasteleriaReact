@@ -152,7 +152,10 @@ function App() {
           />
         }
       >
-        <Route path="/admin" element={<LayoutAdmin />}>
+        <Route path="/admin" element={<LayoutAdmin
+          sesion={sesion}
+          onCerrarSesion={cerrarSesion}
+        />}>
           <Route index element={<InicioAdmin />} />
           <Route
             path="productos"
@@ -175,7 +178,10 @@ function App() {
           />
         }
       >
-        <Route path="/admin" element={<LayoutAdmin />}>
+        <Route path="/admin" element={<LayoutAdmin
+          sesion={sesion}
+          onCerrarSesion={cerrarSesion}
+        />}>
           <Route
             path="productos/nuevo"
             element={
