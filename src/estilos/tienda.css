@@ -115,8 +115,8 @@
     white-space: nowrap;
 }
 
-/* ===== ENCABEZADO PÚBLICO - ORIGINAL EN ESCRITORIO ===== */
-/* Se identifica por sus hijos reales, sin depender de la clase del layout. */
+/* ===== ENCABEZADO PÚBLICO RESPONSIVE ===== */
+/* Conserva los colores originales y evita que el menú se superponga. */
 header:has(> #marca):has(> #menu) {
     background-color: var(--color-fondo);
     display: flex;
@@ -124,104 +124,94 @@ header:has(> #marca):has(> #menu) {
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 20px 40px;
+    gap: 12px;
+    padding: 20px 24px;
     text-align: center;
 }
 
-header:has(> #marca)>#marca,
-header:has(> #marca)>#menu,
-header:has(> #marca)>#acciones-header,
-header:has(> #marca)>#sesion-header {
-    width: auto;
+header:has(> #marca)>#marca {
+    flex: 0 1 300px;
     min-width: 0;
 }
 
-header:has(> #marca)>#marca,
-header:has(> #marca)>#sesion-header {
-    flex-shrink: 0;
+header:has(> #marca) #marca h1 {
+    font-size: clamp(20px, 1.6vw, 30px);
+    line-height: 1.2;
 }
 
-header:has(> #marca)>#menu,
+header:has(> #marca)>#menu {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+header:has(> #marca) #menu a {
+    padding: 9px 5px;
+    font-size: clamp(12px, 0.85vw, 16px);
+    white-space: nowrap;
+}
+
 header:has(> #marca)>#acciones-header {
+    flex: 0 0 auto;
+    display: flex;
     flex-wrap: nowrap;
+    align-items: center;
+    gap: 7px;
 }
 
-/* Escritorio: tamaños originales de marca, menú y buscador. */
-@media (min-width: 1450px) and (max-width: 1650px) {
+header:has(> #marca) #buscador input {
+    width: clamp(95px, 9vw, 170px);
+    min-width: 0;
+}
+
+header:has(> #marca)>#sesion-header {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+}
+
+
+
+
+
+/* Tablet y pantallas donde los elementos ya no caben en una fila. */
+@media (max-width: 1450px) {
     header:has(> #marca):has(> #menu) {
-        padding: 20px 24px;
-        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        padding: 18px 20px;
     }
 
-    header:has(> #marca) #marca h1 {
-        font-size: 30px;
+    header:has(> #marca)>#marca {
+        flex: 1 1 100%;
+    }
+
+    header:has(> #marca)>#menu {
+        flex: 1 1 100%;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     header:has(> #marca) #menu a {
-        font-size: 16px;
-        padding: 12px 8px;
+        font-size: 15px;
+        padding: 8px;
     }
 
     header:has(> #marca) #buscador input {
         width: 170px;
     }
 
-    header:has(> #marca) #buscador button {
-        width: 48px;
-    }
-}
-
-/* Pantallas más estrechas: reducir solo lo necesario para mantener la fila. */
-@media (min-width: 1200px) and (max-width: 1449px) {
-    header:has(> #marca):has(> #menu) {
-        padding: 16px 16px;
-        gap: 8px;
-    }
-
-    header:has(> #marca) #marca h1 {
-        font-size: 25px;
-    }
-
-    header:has(> #marca) #menu {
-        gap: 0;
-    }
-
-    header:has(> #marca) #menu a {
-        font-size: 13px;
-        padding: 10px 5px;
-    }
-
-    header:has(> #marca) #buscador input {
-        width: 125px;
-    }
-
-    header:has(> #marca) #buscador button {
-        width: 42px;
-    }
-
-    header:has(> #marca) #acciones-header {
-        gap: 7px;
-    }
-}
-
-/* Tablet: el contenido se reacomoda cuando no cabe en una fila. */
-@media (max-width: 1199px) {
-    header:has(> #marca):has(> #menu) {
-        flex-direction: row;
+    header:has(> #marca)>#acciones-header,
+    header:has(> #marca)>#sesion-header {
         flex-wrap: wrap;
         justify-content: center;
-        gap: 14px;
-        padding: 18px 22px;
-    }
-
-    header:has(> #marca)>#marca,
-    header:has(> #marca)>#menu {
-        width: 100%;
-    }
-
-    header:has(> #marca)>#menu {
-        flex-wrap: wrap;
     }
 
     #barra-superior {
@@ -229,21 +219,22 @@ header:has(> #marca)>#acciones-header {
     }
 }
 
-/* Móvil: sin desbordamiento horizontal. */
+/* Móvil: apilar y centrar sin provocar desbordamiento horizontal. */
 @media (max-width: 600px) {
     header:has(> #marca):has(> #menu) {
         flex-direction: column;
-        gap: 12px;
         padding: 16px 12px;
+        gap: 12px;
+    }
+
+    header:has(> #marca)>#marca,
+    header:has(> #marca)>#menu {
+        flex: 0 1 auto;
+        width: 100%;
     }
 
     header:has(> #marca) #marca h1 {
         font-size: 25px;
-    }
-
-    header:has(> #marca)>#menu {
-        gap: 0;
-        justify-content: center;
     }
 
     header:has(> #marca) #menu a {
@@ -251,18 +242,14 @@ header:has(> #marca)>#acciones-header {
         padding: 8px 7px;
     }
 
-    header:has(> #marca)>#acciones-header {
+    header:has(> #marca)>#acciones-header,
+    header:has(> #marca)>#sesion-header {
         width: 100%;
         flex-wrap: wrap;
     }
 
-    header:has(> #marca) #buscador {
-        max-width: 100%;
-    }
-
     header:has(> #marca) #buscador input {
         width: min(170px, 50vw);
-        min-width: 0;
     }
 
     #barra-superior {

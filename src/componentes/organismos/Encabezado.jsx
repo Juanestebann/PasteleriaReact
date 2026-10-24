@@ -6,6 +6,11 @@ function Encabezado({
     cantidadCarrito = 0,
     onCerrarSesion = () => { }
 }) {
+    // J14: identificar usuarios con acceso al panel administrativo
+    const esPersonalInterno =
+        usuario?.tipoUsuario === 'Administrador' ||
+        usuario?.tipoUsuario === 'Vendedor'
+
     return (
         <>
             {/* BARRA SUPERIOR */}
@@ -32,9 +37,9 @@ function Encabezado({
                     <Link to="/nosotros">Nosotros</Link>
                     <Link to="/contacto">Contacto</Link>
                 </nav>
+
                 {/* ACCIONES DEL ENCABEZADO */}
                 <section id="acciones-header">
-
                     {/* BUSCADOR */}
                     <section id="buscador">
                         <input
@@ -44,7 +49,10 @@ function Encabezado({
                             aria-label="Buscar producto"
                         />
 
-                        <button type="button" aria-label="Buscar">
+                        <button
+                            type="button"
+                            aria-label="Buscar"
+                        >
                             🔍
                         </button>
                     </section>
@@ -57,20 +65,40 @@ function Encabezado({
                     >
                         🛒 <span>{cantidadCarrito}</span>
                     </Link>
-
                 </section>
+
                 {/* ESTADO DE SESIÓN */}
                 <section id="sesion-header">
                     {usuario ? (
                         <>
-                            <span className="nombre-usuario"><span aria-hidden="true">👤 </span>Hola, {usuario.nombre}</span>
+                            <span className="nombre-usuario">
+                                <span aria-hidden="true">👤 </span>
+                                Hola, {usuario.nombre}
+                            </span>
 
-                            <button type="button" className="boton-CerrarSesion" onClick={onCerrarSesion}>
+                            {/* J14: enlace exclusivo para personal interno */}
+                            {esPersonalInterno && (
+                                <Link
+                                    className="boton-IniciarSesion"
+                                    to="/admin"
+                                >
+                                    Administrativo
+                                </Link>
+                            )}
+
+                            <button
+                                type="button"
+                                className="boton-CerrarSesion"
+                                onClick={onCerrarSesion}
+                            >
                                 Cerrar sesión
                             </button>
                         </>
                     ) : (
-                        <Link className="boton-IniciarSesion" to="/login">
+                        <Link
+                            className="boton-IniciarSesion"
+                            to="/login"
+                        >
                             Iniciar Sesión
                         </Link>
                     )}
