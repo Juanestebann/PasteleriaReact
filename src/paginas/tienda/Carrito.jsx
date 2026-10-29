@@ -25,6 +25,7 @@ function Carrito({ productos = productosIniciales }) {
     const [carrito, setCarrito] = useState(leerCarrito)
     const [codigoCupon, setCodigoCupon] = useState('')
     const [cuponAplicado, setCuponAplicado] = useState('')
+    const [compraRealizada, setCompraRealizada] = useState(false)
 
     useEffect(() => {
         guardarCarrito(carrito)
@@ -78,6 +79,15 @@ function Carrito({ productos = productosIniciales }) {
         setCodigoCupon('')
     }
 
+    function manejarPagar() {
+        if (carrito.length === 0) return
+
+        setCarrito(vaciarCarrito())
+        setCuponAplicado('')
+        setCodigoCupon('')
+        setCompraRealizada(true)
+    }
+
     function manejarCupon(evento) {
         evento.preventDefault()
 
@@ -91,6 +101,12 @@ function Carrito({ productos = productosIniciales }) {
     return (
         <main className="container py-5">
             <h1>Carrito de compras</h1>
+
+            {compraRealizada && (
+                <p className="alert alert-success mt-3" role="status">
+                    ¡Compra realizada correctamente!
+                </p>
+            )}
 
             {productosCarrito.length === 0 ? (
                 <section className="text-center py-5">
@@ -189,10 +205,13 @@ function Carrito({ productos = productosIniciales }) {
                                 </strong>
                             </div>
 
-                            <p className="text-muted small mt-3">
-                                El proceso de compra todavía no está
-                                habilitado en esta versión.
-                            </p>
+                            <button
+                                type="button"
+                                className="btn btn-primary w-100 mt-3"
+                                onClick={manejarPagar}
+                            >
+                                PAGAR
+                            </button>
                         </section>
                     </aside>
                 </div>

@@ -111,6 +111,19 @@ describe('C07 - Página del carrito', () => {
         ).toBeInTheDocument()
     })
 
+    it('permite pagar, muestra confirmación y vacía el carrito guardado', () => {
+        prepararCarrito()
+        renderizarCarrito()
+
+        fireEvent.click(screen.getByRole('button', { name: 'PAGAR' }))
+
+        expect(
+            screen.getByRole('status')
+        ).toHaveTextContent('¡Compra realizada correctamente!')
+        expect(screen.getByText('Tu carrito está vacío.')).toBeInTheDocument()
+        expect(JSON.parse(localStorage.getItem('carrito'))).toEqual([])
+    })
+
     it('aplica el descuento felices10', () => {
         prepararCarrito()
         renderizarCarrito()
