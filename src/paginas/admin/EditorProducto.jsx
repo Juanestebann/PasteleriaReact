@@ -29,7 +29,10 @@ function EditorProducto({
     }
 
     return (
-        <main id="principal-admin">
+        <main
+            id="principal-admin"
+            className="productos-admin-react"
+        >
             <section
                 id={
                     esEdicion
@@ -44,6 +47,7 @@ function EditorProducto({
                             ? 'Editar producto'
                             : 'Nuevo producto'}
                     </h2>
+
                     <p>
                         {esEdicion
                             ? 'Modifica los datos del producto seleccionado.'
@@ -56,7 +60,7 @@ function EditorProducto({
                     className="btn btn-admin btn-secundario"
                     to="/admin/productos"
                 >
-                    ← Volver
+                    ← Volver a productos
                 </Link>
             </section>
 
@@ -72,7 +76,7 @@ function EditorProducto({
                     </Link>
                 </section>
             ) : (
-                <section className="panel panel-con-borde">
+                <section className="panel panel-con-borde editor-producto-panel">
                     <FormularioProducto
                         key={codigo ?? 'nuevo'}
                         modo={modo}

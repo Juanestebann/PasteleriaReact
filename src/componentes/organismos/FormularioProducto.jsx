@@ -103,8 +103,8 @@ function FormularioProducto({
         ...productoVacio,
         ...productoInicial,
     }))
-    const [errores, setErrores] = useState({})
 
+    const [errores, setErrores] = useState({})
     const esEdicion = modo === 'editar'
 
     function actualizarCampo(evento) {
@@ -157,7 +157,7 @@ function FormularioProducto({
         bloqueado = false,
     }) {
         return (
-            <div className="mb-3" key={nombre}>
+            <div className="campo-formulario" key={nombre}>
                 <label htmlFor={nombre} className="form-label">
                     {etiqueta}
                 </label>
@@ -173,7 +173,9 @@ function FormularioProducto({
                     disabled={bloqueado}
                     aria-invalid={Boolean(errores[nombre])}
                     aria-describedby={
-                        errores[nombre] ? `${nombre}-error` : undefined
+                        errores[nombre]
+                            ? `${nombre}-error`
+                            : undefined
                     }
                 />
 
@@ -197,159 +199,209 @@ function FormularioProducto({
                     ? 'formulario-editar-producto'
                     : 'formulario-nuevo-producto'
             }
-            className="formulario-usuario"
+            className="formulario-producto"
             noValidate
             onSubmit={enviarFormulario}
         >
-            <section className="seccion-formulario">
-                <header className="seccion-cabecera">
-                    <span className="seccion-icono" aria-hidden="true">
-                        📦
-                    </span>
-                    <div>
-                        <h3>Información del producto</h3>
-                        <p>Ingresa los datos principales del producto.</p>
+            <div className="editor-producto-grid">
+
+                {/* INFORMACIÓN DEL PRODUCTO */}
+                <section className="bloque-formulario">
+                    <header className="titulo-bloque-formulario">
+                        <span
+                            className="icono-titulo-producto"
+                            aria-hidden="true"
+                        >
+                            📦
+                        </span>
+                        <div>
+                            <h2>Información del producto</h2>
+                            <p>
+                                Ingresa los datos principales del producto.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div className="fila-formulario fila-doble">
+                        {campo({
+                            nombre: 'codigo',
+                            etiqueta: 'Código',
+                            placeholder: 'Ej: TC003',
+                            bloqueado: esEdicion,
+                        })}
+
+                        {campo({
+                            nombre: 'nombre',
+                            etiqueta: 'Nombre',
+                            placeholder: 'Nombre del producto',
+                        })}
                     </div>
-                </header>
 
-                <div className="fila-formulario">
-                    {campo({
-                        nombre: 'codigo',
-                        etiqueta: 'Código',
-                        placeholder: 'Ej: TC003',
-                        bloqueado: esEdicion,
-                    })}
+                    <div className="fila-formulario fila-doble">
+                        {campo({
+                            nombre: 'precio',
+                            etiqueta: 'Precio',
+                            tipo: 'number',
+                            placeholder: 'Precio en pesos',
+                        })}
 
-                    {campo({
-                        nombre: 'nombre',
-                        etiqueta: 'Nombre',
-                        placeholder: 'Nombre del producto',
-                    })}
-                </div>
+                        <div className="campo-formulario">
+                            <label
+                                htmlFor="categoria"
+                                className="form-label"
+                            >
+                                Categoría
+                            </label>
 
-                <div className="fila-formulario">
-                    {campo({
-                        nombre: 'precio',
-                        etiqueta: 'Precio',
-                        tipo: 'number',
-                        placeholder: 'Precio en pesos',
-                    })}
+                            <select
+                                id="categoria"
+                                name="categoria"
+                                className="form-select"
+                                value={datos.categoria}
+                                onChange={actualizarCampo}
+                                aria-invalid={Boolean(errores.categoria)}
+                                aria-describedby={
+                                    errores.categoria
+                                        ? 'categoria-error'
+                                        : undefined
+                                }
+                            >
+                                <option value="">
+                                    Selecciona una categoría
+                                </option>
+
+                                {categorias.map((categoria) => (
+                                    <option
+                                        key={categoria.valor}
+                                        value={categoria.valor}
+                                    >
+                                        {categoria.nombre}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {errores.categoria && (
+                                <p
+                                    id="categoria-error"
+                                    className="text-danger mt-1"
+                                    role="alert"
+                                >
+                                    {errores.categoria}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </section>
+
+                {/* INVENTARIO */}
+                <section className="bloque-formulario">
+                    <header className="titulo-bloque-formulario">
+                        <span
+                            className="icono-titulo-producto"
+                            aria-hidden="true"
+                        >
+                            📊
+                        </span>
+                        <div>
+                            <h2>Inventario</h2>
+                            <p>
+                                Configura las existencias y el stock crítico.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div className="fila-formulario fila-doble">
+                        {campo({
+                            nombre: 'stock',
+                            etiqueta: 'Stock',
+                            tipo: 'number',
+                        })}
+
+                        {campo({
+                            nombre: 'stockCritico',
+                            etiqueta: 'Stock crítico',
+                            tipo: 'number',
+                        })}
+                    </div>
+                </section>
+
+                {/* DESCRIPCIÓN Y CATEGORÍA */}
+                <section className="bloque-formulario bloque-completo">
+                    <header className="titulo-bloque-formulario">
+                        <span
+                            className="icono-titulo-producto"
+                            aria-hidden="true"
+                        >
+                            🧁
+                        </span>
+                        <div>
+                            <h2>Descripción y categoría</h2>
+                            <p>
+                                Define cómo se presenta el producto.
+                            </p>
+                        </div>
+                    </header>
 
                     {campo({
                         nombre: 'imagen',
                         etiqueta: 'Imagen',
                         placeholder: '/img/Nombre del producto.png',
                     })}
-                </div>
-            </section>
 
-            <section className="seccion-formulario">
-                <header className="seccion-cabecera">
-                    <span className="seccion-icono" aria-hidden="true">
-                        🧁
-                    </span>
-                    <div>
-                        <h3>Descripción y categoría</h3>
-                        <p>Define cómo se presenta el producto.</p>
-                    </div>
-                </header>
+                    <div className="campo-formulario">
+                        <label
+                            htmlFor="descripcion"
+                            className="form-label"
+                        >
+                            Descripción
+                        </label>
 
-                <div className="mb-3">
-                    <label htmlFor="descripcion" className="form-label">
-                        Descripción
-                    </label>
+                        <textarea
+                            id="descripcion"
+                            name="descripcion"
+                            className="form-control"
+                            rows={4}
+                            value={datos.descripcion}
+                            onChange={actualizarCampo}
+                            aria-invalid={Boolean(errores.descripcion)}
+                            aria-describedby={
+                                errores.descripcion
+                                    ? 'descripcion-error'
+                                    : undefined
+                            }
+                        />
 
-                    <textarea
-                        id="descripcion"
-                        name="descripcion"
-                        className="form-control"
-                        rows={4}
-                        value={datos.descripcion}
-                        onChange={actualizarCampo}
-                        aria-invalid={Boolean(errores.descripcion)}
-                    />
-
-                    {errores.descripcion && (
-                        <p className="text-danger mt-1" role="alert">
-                            {errores.descripcion}
-                        </p>
-                    )}
-                </div>
-
-                <div className="mb-3">
-                    <label htmlFor="categoria" className="form-label">
-                        Categoría
-                    </label>
-
-                    <select
-                        id="categoria"
-                        name="categoria"
-                        className="form-select"
-                        value={datos.categoria}
-                        onChange={actualizarCampo}
-                        aria-invalid={Boolean(errores.categoria)}
-                    >
-                        <option value="">Selecciona una categoría</option>
-
-                        {categorias.map((categoria) => (
-                            <option
-                                key={categoria.valor}
-                                value={categoria.valor}
+                        {errores.descripcion && (
+                            <p
+                                id="descripcion-error"
+                                className="text-danger mt-1"
+                                role="alert"
                             >
-                                {categoria.nombre}
-                            </option>
-                        ))}
-                    </select>
-
-                    {errores.categoria && (
-                        <p className="text-danger mt-1" role="alert">
-                            {errores.categoria}
-                        </p>
-                    )}
-                </div>
-            </section>
-
-            <section className="seccion-formulario">
-                <header className="seccion-cabecera">
-                    <span className="seccion-icono" aria-hidden="true">
-                        📊
-                    </span>
-                    <div>
-                        <h3>Inventario</h3>
-                        <p>Configura las existencias y el stock crítico.</p>
+                                {errores.descripcion}
+                            </p>
+                        )}
                     </div>
-                </header>
+                </section>
 
-                <div className="fila-formulario">
-                    {campo({
-                        nombre: 'stock',
-                        etiqueta: 'Stock',
-                        tipo: 'number',
-                    })}
+                {/* ACCIONES */}
+                <div className="acciones-formulario-producto">
+                    <button
+                        type="submit"
+                        className="btn btn-guardar-producto"
+                    >
+                        {esEdicion
+                            ? 'Guardar cambios'
+                            : 'Crear producto'}
+                    </button>
 
-                    {campo({
-                        nombre: 'stockCritico',
-                        etiqueta: 'Stock crítico',
-                        tipo: 'number',
-                    })}
+                    <button
+                        type="button"
+                        className="btn btn-cancelar-producto"
+                        onClick={onCancelar}
+                    >
+                        Cancelar
+                    </button>
                 </div>
-            </section>
-
-            <div className="acciones-formulario-usuario">
-                <button
-                    type="button"
-                    className="btn btn-admin btn-secundario"
-                    onClick={onCancelar}
-                >
-                    Cancelar
-                </button>
-
-                <button
-                    type="submit"
-                    className="btn btn-admin btn-principal"
-                >
-                    {esEdicion ? 'Guardar cambios' : 'Crear producto'}
-                </button>
             </div>
         </form>
     )

@@ -1,6 +1,6 @@
 
 import { describe, it, expect } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import ProductosAdmin from './ProductosAdmin'
 import { productosIniciales } from '../../datos/productos'
@@ -58,8 +58,15 @@ describe('C08 - Administración de productos', () => {
         expect(screen.getByText('Total productos'))
             .toBeInTheDocument()
 
-        expect(screen.getByText('3 productos encontrados'))
-            .toBeInTheDocument()
+        const tarjetas = document.querySelectorAll(
+            '#productos-resumen .producto-resumen'
+        )
+
+        expect(tarjetas).toHaveLength(2)
+
+        expect(
+            within(tarjetas[0]).getByText('3')
+        ).toBeInTheDocument()
     })
 
     it('identifica los productos con stock crítico', () => {
@@ -85,8 +92,9 @@ describe('C08 - Administración de productos', () => {
 
         expect(screen.getByText('TC002')).toBeInTheDocument()
         expect(screen.queryByText('TC001')).not.toBeInTheDocument()
-        expect(screen.getByText('1 productos encontrados'))
-            .toBeInTheDocument()
+
+        const filas = screen.getAllByRole('row')
+        expect(filas).toHaveLength(2)
     })
 
     it('busca productos por código', () => {
@@ -158,13 +166,29 @@ describe('C08 - Administración de productos', () => {
             screen.getByRole('link', {
                 name: /Nuevo producto/
             })
-        ).toHaveAttribute('href', '/admin/productos/nuevo')
+        ).toHaveAttribute(
+            'href',
+            '/admin/productos/nuevo'
+        )
     })
 
     it('carga los productos reales del catálogo', () => {
         renderizarAdmin(productosIniciales)
 
-        expect(screen.getByText('16 productos encontrados'))
-            .toBeInTheDocument()
+        const tarjetas = document.querySelectorAll(
+            '#productos-resumen .producto-resumen'
+        )
+
+        expect(
+            within(tarjetas[0]).getByText(
+                String(productosIniciales.length)
+            )
+        ).toBeInTheDocument()
+
+        const filas = screen.getAllByRole('row')
+
+        expect(filas).toHaveLength(
+            productosIniciales.length + 1
+        )
     })
 })

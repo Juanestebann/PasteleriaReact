@@ -63,7 +63,7 @@ describe('J06 - Página Inicio', () => {
 
         expect(catalogo).not.toBeNull()
 
-        const productos = catalogo.querySelectorAll('article.producto')
+        const productos = catalogo.querySelectorAll('article.producto-completo')
 
         expect(productos).toHaveLength(8)
     })
@@ -86,7 +86,7 @@ describe('J06 - Página Inicio', () => {
         const catalogo = document.querySelector('#productos')
 
         const enlaces = within(catalogo).getAllByRole('link', {
-            name: 'Ver producto'
+            name: 'Ver detalle'
         })
 
         expect(enlaces).toHaveLength(8)
@@ -107,8 +107,8 @@ describe('J06 - Página Inicio', () => {
         try {
             renderizarInicio()
             expect(screen.getByText('Torta de temporada')).toBeInTheDocument()
-            expect(screen.getByText('$39.000')).toBeInTheDocument()
-            expect(document.querySelectorAll('#productos article.producto')).toHaveLength(1)
+            expect(screen.getByText('$39.000 CLP')).toBeInTheDocument()
+            expect(document.querySelectorAll('#productos article.producto-completo')).toHaveLength(1)
         } finally {
             localStorage.removeItem('productos')
         }

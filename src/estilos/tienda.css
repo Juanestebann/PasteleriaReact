@@ -346,12 +346,22 @@ header:has(> #marca)>#sesion-header {
     gap: 15px;
 }
 
-.producto {
+/* Tarjetas destacadas de la página de inicio */
+#catalogo #productos .producto {
     text-align: left;
+    background-color: #FFFFFF;
+    border: 2px solid #E7C9A9;
+    border-radius: 12px;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-.producto img {
+#catalogo #productos .producto img {
+    display: block;
+    width: 100%;
     max-width: 100%;
+    border-radius: 8px;
 }
 
 .producto b {
@@ -722,7 +732,7 @@ header:has(> #marca)>#sesion-header {
     text-decoration: none;
     padding: 10px 20px;
     border-style: solid;
-    border-color: #FFC0CB;
+    border-color: #E7C9A9;
     border-radius: var(--radio-base);
     font-weight: bold;
 }
@@ -747,11 +757,19 @@ header:has(> #marca)>#sesion-header {
 
 .producto-completo {
     text-align: center;
+    background-color: #FFFFFF;
+    border: 2px solid #E7C9A9;
+    border-radius: 12px;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .producto-completo img {
+    width: 100%;
     height: 220px;
     object-fit: cover;
+    border-radius: 8px;
 }
 
 .producto-completo p {

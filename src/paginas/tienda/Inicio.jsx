@@ -1,4 +1,7 @@
 import { Link } from 'react-router'
+import { useState } from 'react'
+import { agregarProducto } from '../../utils/carrito'
+import { leerCarrito, guardarCarrito } from '../../utils/almacenamiento'
 
 
 import TarjetaProducto from '../../componentes/moleculas/TarjetaProducto'
@@ -8,6 +11,23 @@ import { leerProductos } from '../../utils/productos'
 
 function Inicio({ productos }) {
     const productosDestacados = (productos ?? leerProductos()).slice(0, 8)
+    const [mensajeCarrito, setMensajeCarrito] = useState('')
+
+    function manejarAgregar(producto) {
+        const carritoActual = leerCarrito()
+        const carritoNuevo = agregarProducto(carritoActual, producto, 1)
+
+        if (carritoNuevo === carritoActual) {
+            setMensajeCarrito(`No se pudo añadir ${producto.nombre}: se alcanzó el stock disponible.`)
+            return
+        }
+
+        if (guardarCarrito(carritoNuevo)) {
+            setMensajeCarrito(`${producto.nombre} añadido al carrito.`)
+        } else {
+            setMensajeCarrito('No se pudo guardar el carrito. Inténtalo de nuevo.')
+        }
+    }
     return (
         <>
             {/* SECCIÓN PRINCIPAL */}
@@ -64,9 +84,15 @@ function Inicio({ productos }) {
                 {/* PRODUCTOS DESTACADOS */}
                 <section id="productos">
                     {productosDestacados.map((producto) => (
-                        <TarjetaProducto key={producto.codigo} producto={producto} />
+                        <TarjetaProducto
+                            key={producto.codigo}
+                            producto={producto}
+                            variante="catalogo"
+                            onAgregar={manejarAgregar}
+                        />
                     ))}
                 </section>
+                {mensajeCarrito && <p role="status">{mensajeCarrito}</p>}
 
                 {/* VER TODOS LOS PRODUCTOS */}
                 <section id="ver-todos-productos">

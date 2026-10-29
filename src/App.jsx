@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 import DetalleProducto from './paginas/tienda/DetalleProducto'
@@ -115,6 +116,13 @@ function App() {
     setProductos((actuales) => actualizarProducto(actuales, producto))
   }
 
+  // Elimina un producto de la lista utilizando su código.
+  function eliminarProductoRegistrado(codigo) {
+    setProductos((actuales) =>
+      actuales.filter((producto) => producto.codigo !== codigo)
+    )
+  }
+
   return (
     <>
     {/* Al navegar, la nueva página parte desde arriba (como en la Ev1) */}
@@ -170,6 +178,7 @@ function App() {
               <ProductosAdmin
                 productos={productos}
                 puedeGestionar={sesion?.tipoUsuario === 'Administrador'}
+                onEliminar={eliminarProductoRegistrado}
               />
             }
           />

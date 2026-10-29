@@ -19,10 +19,25 @@ const mostrarCategoria = (categoria) =>
 
 function ProductosAdmin({
     productos = productosIniciales,
-    puedeGestionar = true
+    puedeGestionar = true,
+    onEliminar
 }) {
     const [busqueda, setBusqueda] = useState('')
     const [filtro, setFiltro] = useState('todos')
+
+    function confirmarEliminacion(producto) {
+        if (!puedeGestionar || typeof onEliminar !== 'function') {
+            return
+        }
+
+        const confirmado = window.confirm(
+            `¿Estás seguro de que deseas eliminar el producto ${producto.nombre} (${producto.codigo})?`
+        )
+
+        if (confirmado) {
+            onEliminar(producto.codigo)
+        }
+    }
 
     const totalProductos = productos.length
 
@@ -39,7 +54,9 @@ function ProductosAdmin({
             `${producto.codigo} ${producto.nombre}`
         )
 
-        const coincideBusqueda = texto.includes(normalizar(busqueda))
+        const coincideBusqueda = texto.includes(
+            normalizar(busqueda)
+        )
 
         const coincideFiltro =
             filtro === 'todos' ||
@@ -68,9 +85,13 @@ function ProductosAdmin({
                 aria-label="Resumen de productos"
             >
                 <article className="panel producto-resumen">
-                    <span className="resumen-icono" aria-hidden="true">
+                    <span
+                        className="resumen-icono"
+                        aria-hidden="true"
+                    >
                         📦
                     </span>
+
                     <div>
                         <h3>Total productos</h3>
                         <p>{totalProductos}</p>
@@ -78,9 +99,13 @@ function ProductosAdmin({
                 </article>
 
                 <article className="panel producto-resumen">
-                    <span className="resumen-icono" aria-hidden="true">
+                    <span
+                        className="resumen-icono"
+                        aria-hidden="true"
+                    >
                         ⚠️
                     </span>
+
                     <div>
                         <h3>Stock crítico</h3>
                         <p>{productosCriticos}</p>
@@ -97,6 +122,7 @@ function ProductosAdmin({
                     <label htmlFor="buscar-producto-admin">
                         Buscar producto
                     </label>
+
                     <input
                         id="buscar-producto-admin"
                         className="form-control"
@@ -113,6 +139,7 @@ function ProductosAdmin({
                     <label htmlFor="filtrar-producto-admin">
                         Filtrar productos
                     </label>
+
                     <select
                         id="filtrar-producto-admin"
                         className="form-select"
@@ -124,9 +151,11 @@ function ProductosAdmin({
                         <option value="todos">
                             Todas las categorías
                         </option>
+
                         <option value="criticos">
                             Stock crítico
                         </option>
+
                         {categorias.map((categoria) => (
                             <option
                                 key={categoria}
@@ -153,7 +182,6 @@ function ProductosAdmin({
                 <div id="productos-listado-header">
                     <h2>Productos registrados</h2>
                     <p>Inventario disponible en el sistema.</p>
-                    <p>{productosFiltrados.length} productos encontrados</p>
                 </div>
 
                 <div className="tabla-contenedor">
@@ -174,11 +202,15 @@ function ProductosAdmin({
                                 <th>Acciones</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             {productosFiltrados.map((producto) => {
-                                const sinStock = producto.stock === 0
+                                const sinStock =
+                                    producto.stock === 0
+
                                 const critico =
-                                    producto.stock <= producto.stockCritico
+                                    producto.stock <=
+                                    producto.stockCritico
 
                                 const estado = sinStock
                                     ? 'Sin stock'
@@ -195,16 +227,29 @@ function ProductosAdmin({
                                                 alt={producto.nombre}
                                             />
                                         </td>
+
                                         <td>{producto.codigo}</td>
+
                                         <td>{producto.nombre}</td>
+
                                         <td>
-                                            {mostrarCategoria(producto.categoria)}
+                                            {mostrarCategoria(
+                                                producto.categoria
+                                            )}
                                         </td>
+
                                         <td>
-                                            {formatearPrecio(producto.precio)}
+                                            {formatearPrecio(
+                                                producto.precio
+                                            )}
                                         </td>
+
                                         <td>{producto.stock}</td>
-                                        <td>{producto.stockCritico}</td>
+
+                                        <td>
+                                            {producto.stockCritico}
+                                        </td>
+
                                         <td>
                                             <span
                                                 className={
@@ -217,18 +262,34 @@ function ProductosAdmin({
                                                 {estado}
                                             </span>
                                         </td>
+
                                         <td>
                                             <div className="celda-acciones">
                                                 {puedeGestionar ? (
-                                                    <Link
-                                                        to={`/admin/productos/${producto.codigo}/editar`}
-                                                        className="btn btn-principal"
-                                                        aria-label={`Editar ${producto.nombre}`}
-                                                    >
-                                                        Editar
-                                                    </Link>
+                                                    <>
+                                                        <Link
+                                                            to={`/admin/productos/${producto.codigo}/editar`}
+                                                            className="btn btn-principal"
+                                                            aria-label={`Editar ${producto.nombre}`}
+                                                        >
+                                                            Editar
+                                                        </Link>
+
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-eliminar-producto"
+                                                            aria-label={`Eliminar ${producto.nombre}`}
+                                                            onClick={() =>
+                                                                confirmarEliminacion(producto)
+                                                            }
+                                                        >
+                                                            Eliminar
+                                                        </button>
+                                                    </>
                                                 ) : (
-                                                    <span>Solo lectura</span>
+                                                    <span>
+                                                        Solo lectura
+                                                    </span>
                                                 )}
                                             </div>
                                         </td>
