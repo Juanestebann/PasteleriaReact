@@ -1,8 +1,9 @@
-
 import { Link } from 'react-router'
 
 
 import TarjetaProducto from '../../componentes/moleculas/TarjetaProducto'
+import TarjetaBlogInicio from '../../componentes/moleculas/TarjetaBlogInicio'
+import blogs from '../../datos/blogs'
 import { leerProductos } from '../../utils/productos'
 
 function Inicio({ productos }) {
@@ -102,6 +103,13 @@ function Inicio({ productos }) {
                     </Link>
 
                 </article>
+
+                {/* BLOGS: las mismas noticias de la página Blogs, en versión corta */}
+                <section id="blogs-home">
+                    {blogs.map((blog) => (
+                        <TarjetaBlogInicio key={blog.id} blog={blog} />
+                    ))}
+                </section>
 
             </section>
 

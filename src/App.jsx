@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 import DetalleProducto from './paginas/tienda/DetalleProducto'
@@ -7,10 +6,9 @@ import { contarProductos } from './utils/carrito'
 import LayoutTienda from './componentes/plantillas/LayoutTienda'
 import LayoutAdmin from './componentes/plantillas/LayoutAdmin'
 import RutaProtegida from './componentes/plantillas/RutaProtegida'
-import {
-  Blogs,
-  DetalleBlog,
-} from './paginas/tienda/PaginasProvisionales' // S06: se quitó Login · S08: se quitó Registro
+import Blogs from './paginas/tienda/Blogs' // Blogs: listado de noticias
+import DetalleBlog from './paginas/tienda/DetalleBlog' // Blogs: detalle por id
+import SubirAlInicio from './componentes/atomos/SubirAlInicio' // sube la página al cambiar de ruta
 import Carrito from './paginas/tienda/Carrito'
 import Inicio from './paginas/tienda/Inicio'
 import Catalogo from './paginas/tienda/Catalogo'
@@ -118,6 +116,9 @@ function App() {
   }
 
   return (
+    <>
+    {/* Al navegar, la nueva página parte desde arriba (como en la Ev1) */}
+    <SubirAlInicio />
     <Routes>
       {/* RUTAS PÚBLICAS */}
       <Route
@@ -224,6 +225,7 @@ function App() {
         </Route>
       </Route>
     </Routes>
+    </>
   )
 }
 

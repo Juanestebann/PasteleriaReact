@@ -1,5 +1,4 @@
-
-import { Link } from 'react-router'
+import { Link, NavLink } from 'react-router'
 
 function Encabezado({
     usuario = null,
@@ -30,12 +29,13 @@ function Encabezado({
 
                 {/* NAVEGACIÓN */}
                 <nav id="menu" aria-label="Navegación principal">
-                    <Link to="/">Inicio</Link>
-                    <Link to="/productos">Carta</Link>
+                    {/* NavLink marca con la clase "active" la página en la que estás */}
+                    <NavLink to="/" end>Inicio</NavLink>
+                    <NavLink to="/productos">Carta</NavLink>
                     <Link to="/#promocion">Promociones</Link>
-                    <Link to="/blogs">Blogs</Link>
-                    <Link to="/nosotros">Nosotros</Link>
-                    <Link to="/contacto">Contacto</Link>
+                    <NavLink to="/blogs">Blogs</NavLink>
+                    <NavLink to="/nosotros">Nosotros</NavLink>
+                    <NavLink to="/contacto">Contacto</NavLink>
                 </nav>
 
                 {/* ACCIONES DEL ENCABEZADO */}
@@ -49,11 +49,12 @@ function Encabezado({
                             aria-label="Buscar producto"
                         />
 
-                        <button
-                            type="button"
-                            aria-label="Buscar"
-                        >
-                            🔍
+                        <button type="button" aria-label="Buscar">
+                            {/* Lupa dibujada con SVG (el emoji se veía distinto en cada sistema) */}
+                            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2.4" />
+                                <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+                            </svg>
                         </button>
                     </section>
 
@@ -63,7 +64,12 @@ function Encabezado({
                         to="/carrito"
                         aria-label={`Ver carrito, ${cantidadCarrito} productos`}
                     >
-                        🛒 <span>{cantidadCarrito}</span>
+                        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                            <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <circle cx="10" cy="20" r="1.6" fill="currentColor" />
+                            <circle cx="17" cy="20" r="1.6" fill="currentColor" />
+                        </svg>
+                        <span className="contador-carrito">{cantidadCarrito}</span>
                     </Link>
                 </section>
 
@@ -71,27 +77,42 @@ function Encabezado({
                 <section id="sesion-header">
                     {usuario ? (
                         <>
+                            {/* Saludo en una cápsula con la inicial del usuario */}
                             <span className="nombre-usuario">
-                                <span aria-hidden="true">👤 </span>
+                                <span className="avatar-sesion" aria-hidden="true">
+                                    {usuario.nombre?.[0]?.toUpperCase() ?? '?'}
+                                </span>
                                 Hola, {usuario.nombre}
                             </span>
 
                             {/* J14: enlace exclusivo para personal interno */}
                             {esPersonalInterno && (
                                 <Link
-                                    className="boton-IniciarSesion"
+                                    className="boton-sesion boton-panel"
                                     to="/admin"
+                                    aria-label="Ir al panel administrativo"
                                 >
-                                    Administrativo
+                                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                        <rect x="3" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                                        <rect x="14" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                                        <rect x="3" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                                        <rect x="14" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                    Panel
                                 </Link>
                             )}
 
                             <button
                                 type="button"
-                                className="boton-CerrarSesion"
+                                className="boton-sesion boton-salir"
                                 onClick={onCerrarSesion}
+                                aria-label="Cerrar sesión"
                             >
-                                Cerrar sesión
+                                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                    <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M10 17l-5-5 5-5M5 12h11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                Salir
                             </button>
                         </>
                     ) : (
