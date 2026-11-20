@@ -39,6 +39,7 @@ import {
   crearSesion,
 } from './utils/usuarios' // S06
 import InicioAdmin from './paginas/admin/InicioAdmin'
+import { obtenerProductos } from './servicios/productosApi'
 
 function App() {
   const navegar = useNavigate()
@@ -59,6 +60,28 @@ function App() {
     return () => {
       window.removeEventListener(EVENTO_CARRITO_ACTUALIZADO, actualizarContador)
       window.removeEventListener('storage', actualizarContador)
+    }
+  }, [])
+
+  // C3-06: carga los productos reales desde el backend Spring Boot.
+  useEffect(() => {
+    let activo = true
+
+    async function cargarProductos() {
+      try {
+        const productosApi = await obtenerProductos()
+        if (activo && Array.isArray(productosApi)) {
+          setProductos(productosApi)
+        }
+      } catch (error) {
+        console.error('No se pudieron cargar los productos:', error)
+      }
+    }
+
+    cargarProductos()
+
+    return () => {
+      activo = false
     }
   }, [])
 
@@ -102,7 +125,7 @@ function App() {
   // S11: reemplaza al usuario que tiene el mismo RUN por su versión editada
   function actualizarUsuario(usuarioEditado) {
     setUsuarios((actuales) =>
-      actuales.map((usuario) => (usuario.run === usuarioEditado.run ? usuarioEditado : usuario))
+        actuales.map((usuario) => (usuario.run === usuarioEditado.run ? usuarioEditado : usuario))
     )
     // Si el administrador se editó a sí mismo, también se actualiza su sesión
     if (sesion?.run === usuarioEditado.run) setSesion(crearSesion(usuarioEditado))
@@ -119,122 +142,122 @@ function App() {
   // Elimina un producto de la lista utilizando su código.
   function eliminarProductoRegistrado(codigo) {
     setProductos((actuales) =>
-      actuales.filter((producto) => producto.codigo !== codigo)
+        actuales.filter((producto) => producto.codigo !== codigo)
     )
   }
 
   return (
-    <>
-    {/* Al navegar, la nueva página parte desde arriba (como en la Ev1) */}
-    <SubirAlInicio />
-    <Routes>
-      {/* RUTAS PÚBLICAS */}
-      <Route
-        path="/"
-        element={<LayoutTienda usuario={sesion} cantidadCarrito={cantidadCarrito} onCerrarSesion={cerrarSesion} />}
-      >
-        <Route index element={<Inicio />} />
-        <Route path="productos" element={<Catalogo productos={productos} />} />
-        <Route path="producto/:codigo" element={<DetalleProducto productos={productos} />} />
-        <Route path="carrito" element={<Carrito productos={productos} />} />
-        <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
-        {/* S08 */}
-        <Route
-          path="registro"
-          element={<Registro usuarios={usuarios} onRegistrar={registrarUsuario} />}
-        />
-        <Route path="nosotros" element={<Nosotros />} />
-        <Route path="blogs" element={<Blogs />} />
-        <Route path="blogs/:id" element={<DetalleBlog />} />
-        <Route path="contacto" element={<Contacto />} />
-        <Route path="*" element={<NoEncontrada />} />
-      </Route>
-
-      {/* RUTAS: ADMINISTRADOR Y VENDEDOR */}
-      <Route
-        element={
-          <RutaProtegida
-            sesion={sesion}
-            perfilesPermitidos={['Administrador', 'Vendedor']}
-          />
-        }
-      >
-        <Route path="/admin" element={<LayoutAdmin
-          sesion={sesion}
-          onCerrarSesion={cerrarSesion}
-        />}>
+      <>
+        {/* Al navegar, la nueva página parte desde arriba (como en la Ev1) */}
+        <SubirAlInicio />
+        <Routes>
+          {/* RUTAS PÚBLICAS */}
           <Route
-            index
-            element={
-              <InicioAdmin
+              path="/"
+              element={<LayoutTienda usuario={sesion} cantidadCarrito={cantidadCarrito} onCerrarSesion={cerrarSesion} />}
+          >
+            <Route index element={<Inicio productos={productos} />} />
+            <Route path="productos" element={<Catalogo productos={productos} />} />
+            <Route path="producto/:codigo" element={<DetalleProducto productos={productos} />} />
+            <Route path="carrito" element={<Carrito productos={productos} />} />
+            <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
+            {/* S08 */}
+            <Route
+                path="registro"
+                element={<Registro usuarios={usuarios} onRegistrar={registrarUsuario} />}
+            />
+            <Route path="nosotros" element={<Nosotros />} />
+            <Route path="blogs" element={<Blogs />} />
+            <Route path="blogs/:id" element={<DetalleBlog />} />
+            <Route path="contacto" element={<Contacto />} />
+            <Route path="*" element={<NoEncontrada />} />
+          </Route>
+
+          {/* RUTAS: ADMINISTRADOR Y VENDEDOR */}
+          <Route
+              element={
+                <RutaProtegida
+                    sesion={sesion}
+                    perfilesPermitidos={['Administrador', 'Vendedor']}
+                />
+              }
+          >
+            <Route path="/admin" element={<LayoutAdmin
                 sesion={sesion}
-                productos={productos}
+                onCerrarSesion={cerrarSesion}
+            />}>
+              <Route
+                  index
+                  element={
+                    <InicioAdmin
+                        sesion={sesion}
+                        productos={productos}
+                    />
+                  }
               />
-            }
-          />
-          <Route
-            path="productos"
-            element={
-              <ProductosAdmin
-                productos={productos}
-                puedeGestionar={sesion?.tipoUsuario === 'Administrador'}
-                onEliminar={eliminarProductoRegistrado}
+              <Route
+                  path="productos"
+                  element={
+                    <ProductosAdmin
+                        productos={productos}
+                        puedeGestionar={sesion?.tipoUsuario === 'Administrador'}
+                        onEliminar={eliminarProductoRegistrado}
+                    />
+                  }
               />
-            }
-          />
-        </Route>
-      </Route>
+            </Route>
+          </Route>
 
-      {/* RUTAS: SOLO ADMINISTRADOR */}
-      <Route
-        element={
-          <RutaProtegida
-            sesion={sesion}
-            perfilesPermitidos={['Administrador']}
-          />
-        }
-      >
-        <Route path="/admin" element={<LayoutAdmin
-          sesion={sesion}
-          onCerrarSesion={cerrarSesion}
-        />}>
+          {/* RUTAS: SOLO ADMINISTRADOR */}
           <Route
-            path="productos/nuevo"
-            element={
-              <EditorProducto
-                productos={productos}
-                onCrear={crearNuevoProducto}
-                onActualizar={guardarProductoEditado}
+              element={
+                <RutaProtegida
+                    sesion={sesion}
+                    perfilesPermitidos={['Administrador']}
+                />
+              }
+          >
+            <Route path="/admin" element={<LayoutAdmin
+                sesion={sesion}
+                onCerrarSesion={cerrarSesion}
+            />}>
+              <Route
+                  path="productos/nuevo"
+                  element={
+                    <EditorProducto
+                        productos={productos}
+                        onCrear={crearNuevoProducto}
+                        onActualizar={guardarProductoEditado}
+                    />
+                  }
               />
-            }
-          />
-          <Route
-            path="productos/:codigo/editar"
-            element={
-              <EditorProducto
-                productos={productos}
-                onCrear={crearNuevoProducto}
-                onActualizar={guardarProductoEditado}
+              <Route
+                  path="productos/:codigo/editar"
+                  element={
+                    <EditorProducto
+                        productos={productos}
+                        onCrear={crearNuevoProducto}
+                        onActualizar={guardarProductoEditado}
+                    />
+                  }
               />
-            }
-          />
-          {/* S10 */}
-          <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
-          {/* S11 */}
-          <Route
-            path="usuarios/nuevo"
-            element={<EditorUsuario usuarios={usuarios} onCrear={crearUsuario} />}
-          />
-          {/* S12 */}
-          <Route path="usuarios/:run" element={<VerUsuario usuarios={usuarios} />} />
-          <Route
-            path="usuarios/:run/editar"
-            element={<EditorUsuario usuarios={usuarios} onActualizar={actualizarUsuario} />}
-          />
-        </Route>
-      </Route>
-    </Routes>
-    </>
+              {/* S10 */}
+              <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
+              {/* S11 */}
+              <Route
+                  path="usuarios/nuevo"
+                  element={<EditorUsuario usuarios={usuarios} onCrear={crearUsuario} />}
+              />
+              {/* S12 */}
+              <Route path="usuarios/:run" element={<VerUsuario usuarios={usuarios} />} />
+              <Route
+                  path="usuarios/:run/editar"
+                  element={<EditorUsuario usuarios={usuarios} onActualizar={actualizarUsuario} />}
+              />
+            </Route>
+          </Route>
+        </Routes>
+      </>
   )
 }
 
