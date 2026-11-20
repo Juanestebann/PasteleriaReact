@@ -64,4 +64,16 @@ describe('S05 - FormularioLogin', () => {
 
         expect(screen.getByRole('alert')).toHaveTextContent('El email o la contraseña no son correctos.')
     })
+     // S3-09: si onIniciarSesion devuelve un texto (por ejemplo, sin conexión), se muestra ese texto
+    it('muestra el mensaje que devuelve la página cuando la API falla', async () => {
+        const usuario = userEvent.setup()
+        const onIniciarSesion = vi.fn().mockResolvedValue('No hay conexión con el servidor.')
+
+        render(<FormularioLogin onIniciarSesion={onIniciarSesion} />)
+        await usuario.type(screen.getByLabelText('Correo electrónico'), 'admin@gmail.com')
+        await usuario.type(screen.getByLabelText('Contraseña'), 'admin123')
+        await usuario.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
+
+        expect(await screen.findByRole('alert')).toHaveTextContent('No hay conexión con el servidor.')
+    })
 })

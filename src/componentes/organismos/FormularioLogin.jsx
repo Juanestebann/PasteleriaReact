@@ -1,7 +1,10 @@
 // Organismo: formulario de inicio de sesión.
 // Valida con las reglas de utils/validaciones.js y, si todo está bien,
 // avisa hacia arriba con onIniciarSesion({ correo, contrasena }).
-// onIniciarSesion devuelve true si las credenciales son correctas y false si no.
+// S3-09: onIniciarSesion ahora consulta la API, así que puede ser asíncrona.
+//   - Si devuelve un texto, es el mensaje de error que se muestra.
+//   - Si devuelve false, se muestra el mensaje de credenciales incorrectas.
+//   - Cualquier otro valor significa que el inicio de sesión fue correcto.
 import { useState } from 'react'
 import CampoFormulario from '../atomos/CampoFormulario'
 import { validarLogin } from '../../utils/validaciones'
@@ -10,6 +13,7 @@ function FormularioLogin({ onIniciarSesion }) {
     const [datos, setDatos] = useState({ correo: '', contrasena: '' })
     const [errores, setErrores] = useState({})
     const [errorGeneral, setErrorGeneral] = useState('')
+    const [enviando, setEnviando] = useState(false)
 
     // Un solo manejador para todos los campos: usa el "name" del input
     function actualizarCampo(evento) {
@@ -19,19 +23,23 @@ function FormularioLogin({ onIniciarSesion }) {
         setErrorGeneral('')
     }
 
-    function enviarFormulario(evento) {
+    async function enviarFormulario(evento) {
         evento.preventDefault()
 
         const nuevosErrores = validarLogin(datos)
         setErrores(nuevosErrores)
         if (Object.keys(nuevosErrores).length > 0) return
 
-        const correcto = onIniciarSesion({
+        setEnviando(true)
+        const resultado = await onIniciarSesion({
             correo: datos.correo.trim().toLowerCase(),
             contrasena: datos.contrasena,
         })
+        setEnviando(false)
 
-        if (!correcto) {
+        if (typeof resultado === 'string' && resultado !== '') {
+            setErrorGeneral(resultado)
+        } else if (resultado === false) {
             setErrorGeneral('El email o la contraseña no son correctos.')
         }
     }
@@ -65,8 +73,9 @@ function FormularioLogin({ onIniciarSesion }) {
                 {errorGeneral}
             </p>
 
-            <button id="boton-login" type="submit" className="btn btn-principal btn-acceso">
-                Iniciar sesión
+            {/* Mientras espera a la API, el botón se desactiva para no enviar dos veces */}
+            <button id="boton-login" type="submit" className="btn btn-principal btn-acceso" disabled={enviando}>
+                {enviando ? 'Ingresando…' : 'Iniciar sesión'}
             </button>
         </form>
     )

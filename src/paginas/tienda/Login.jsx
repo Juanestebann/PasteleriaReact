@@ -1,28 +1,39 @@
 // Página de inicio de sesión (/login).
-// La lógica de buscar al usuario vive en App.jsx; aquí solo se decide a dónde ir después.
+// S3-09: el correo y la contraseña se comprueban en la API (POST /api/v1/auth/login).
+// La respuesta (tokens + usuario) se entrega a App, que guarda la sesión.
 import { Link, useLocation, useNavigate } from 'react-router'
 import FormularioLogin from '../../componentes/organismos/FormularioLogin'
-import { esPerfilInterno } from '../../utils/usuarios'
+import { login } from '../../servicios/auth'
+import { mensajeDeError } from '../../servicios/errores'
+
+// Página a la que va cada rol después de iniciar sesión
+const DESTINO_POR_ROL = {
+    ADMINISTRADOR: '/admin',
+    VENDEDOR: '/admin/productos',
+    CLIENTE: '/',
+}
 
 function Login({ onIniciarSesion }) {
     const navegar = useNavigate()
     const ubicacion = useLocation()
 
     // Recibe los datos ya validados del formulario.
-    // Devuelve true o false para que el formulario sepa si mostrar el error.
-    function iniciarSesion({ correo, contrasena }) {
-        const usuario = onIniciarSesion(correo, contrasena)
-        if (!usuario) return false
+    // Devuelve '' si todo salió bien, o el mensaje de error que debe mostrar el formulario.
+    async function iniciarSesion({ correo, contrasena }) {
+        try {
+            const respuesta = await login(correo, contrasena)
+            onIniciarSesion(respuesta)
 
-        // Si RutaProtegida nos mandó aquí, volvemos a la página que se intentaba abrir
-        const paginaAnterior = ubicacion.state?.from?.pathname
-        if (paginaAnterior) {
-            navegar(paginaAnterior, { replace: true })
-        } else {
-            // Igual que en la Ev1: Administrador y Vendedor van al panel, Cliente al inicio
-            navegar(esPerfilInterno(usuario) ? '/admin' : '/', { replace: true })
+            // Si RutaProtegida nos mandó aquí, volvemos a la página que se intentaba abrir
+            const paginaAnterior = ubicacion.state?.from?.pathname
+            navegar(paginaAnterior ?? DESTINO_POR_ROL[respuesta.usuario.rol] ?? '/', { replace: true })
+            return ''
+        } catch (error) {
+            // 401: la API dice que el correo o la contraseña no calzan
+            if (error.response?.status === 401) return 'El email o la contraseña no son correctos.'
+            // Otros casos: API apagada, error del servidor, etc.
+            return mensajeDeError(error)
         }
-        return true
     }
 
     return (

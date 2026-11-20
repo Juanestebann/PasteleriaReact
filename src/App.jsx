@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react' // S06
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 import DetalleProducto from './paginas/tienda/DetalleProducto'
@@ -35,9 +34,9 @@ import {
   leerJSON,
   guardarJSON,
   leerUsuarios,
-  buscarPorCredenciales,
   crearSesion,
-} from './utils/usuarios' // S06
+  crearSesionDesdeApi,
+} from './utils/usuarios' // S06 / S3-09
 import InicioAdmin from './paginas/admin/InicioAdmin'
 import { obtenerProductos } from './servicios/productosApi'
 
@@ -99,22 +98,17 @@ function App() {
     guardarProductos(productos)
   }, [productos])
 
-  // Devuelve el usuario si el correo y la contraseña son correctos, o null si no
-  function iniciarSesion(correo, contrasena) {
-    const usuario = buscarPorCredenciales(usuarios, correo, contrasena)
-    if (usuario) setSesion(crearSesion(usuario))
-    return usuario
+  // S3-09: recibe la respuesta de la API (login o registro) y guarda la sesión.
+  // El correo y la contraseña ya los comprobó el backend; aquí solo se guarda el resultado.
+  function iniciarSesion(respuestaAuth) {
+    const nuevaSesion = crearSesionDesdeApi(respuestaAuth)
+    setSesion(nuevaSesion)
+    return nuevaSesion
   }
 
   function cerrarSesion() {
     setSesion(null)
     navegar('/')
-  }
-
-  // S08: el registro agrega al cliente a la lista y deja su sesión iniciada (igual que la Ev1)
-  function registrarUsuario(usuario) {
-    setUsuarios((actuales) => [...actuales, usuario])
-    setSesion(crearSesion(usuario))
   }
 
   // S11: el administrador crea un usuario (a diferencia del registro, no cambia la sesión)
@@ -127,8 +121,10 @@ function App() {
     setUsuarios((actuales) =>
         actuales.map((usuario) => (usuario.run === usuarioEditado.run ? usuarioEditado : usuario))
     )
-    // Si el administrador se editó a sí mismo, también se actualiza su sesión
-    if (sesion?.run === usuarioEditado.run) setSesion(crearSesion(usuarioEditado))
+    // Si el administrador se editó a sí mismo, también se actualiza su sesión (sin perder los tokens)
+    if (sesion?.run === usuarioEditado.run) {
+      setSesion((actual) => ({ ...actual, ...crearSesion(usuarioEditado) }))
+    }
   }
 
   function crearNuevoProducto(producto) {
@@ -161,11 +157,8 @@ function App() {
             <Route path="producto/:codigo" element={<DetalleProducto productos={productos} />} />
             <Route path="carrito" element={<Carrito productos={productos} />} />
             <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
-            {/* S08 */}
-            <Route
-                path="registro"
-                element={<Registro usuarios={usuarios} onRegistrar={registrarUsuario} />}
-            />
+            {/* S08 / S3-09: el registro crea el usuario en la API y deja la sesión iniciada */}
+            <Route path="registro" element={<Registro onRegistrar={iniciarSesion} />} />
             <Route path="nosotros" element={<Nosotros />} />
             <Route path="blogs" element={<Blogs />} />
             <Route path="blogs/:id" element={<DetalleBlog />} />

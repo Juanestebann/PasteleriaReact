@@ -10,6 +10,7 @@ import CampoFormulario from '../atomos/CampoFormulario'
 import SelectorRegionComuna from '../moleculas/SelectorRegionComuna'
 import { validarUsuario } from '../../utils/validaciones'
 import { camposModificados } from '../../utils/usuarios'
+import { mensajeDeError, erroresDeCampos } from '../../servicios/errores'
 
 const TIPOS_USUARIO = ['Administrador', 'Cliente', 'Vendedor']
 
@@ -59,12 +60,16 @@ function FormularioUsuario({
     onGuardar,
     onCancelar,
     textoBoton = 'Crear cuenta',
+    textoEnviando = 'Guardando…',
     mensajeExito = '',
     onCambio,
 }) {
     const [datos, setDatos] = useState({ ...usuarioVacio, ...usuarioInicial, confirmarContrasena: '' })
     const [errores, setErrores] = useState({})
     const [guardado, setGuardado] = useState(false)
+    // S3-09: estado mientras se espera a la API y mensaje general de error (409, sin conexión...)
+    const [enviando, setEnviando] = useState(false)
+    const [errorGeneral, setErrorGeneral] = useState('')
 
     const { idFormulario, clase } = configuracionPorModo[modo]
     const esAdmin = modo !== 'registro'
@@ -84,13 +89,14 @@ function FormularioUsuario({
         setDatos((actual) => ({ ...actual, [campo]: valor }))
         setErrores((actual) => ({ ...actual, [campo]: '' }))
         setGuardado(false)
+        setErrorGeneral('')
     }
 
     function actualizarCampo(evento) {
         cambiarValor(evento.target.name, evento.target.value)
     }
 
-    function enviarFormulario(evento) {
+    async function enviarFormulario(evento) {
         evento.preventDefault()
 
         const nuevosErrores = validarUsuario(datos, { modo, usuariosExistentes })
@@ -109,8 +115,19 @@ function FormularioUsuario({
             tipoUsuario: esAdmin ? datos.tipoUsuario : 'Cliente',
         }
 
-        onGuardar(usuario)
-        setGuardado(true)
+        // S3-09: onGuardar puede llamar a la API (asíncrona). Si falla:
+        //   - 400 → la API envía "campos" y cada error se muestra bajo su input
+        //   - 409 u otro → se muestra el mensaje general (por ejemplo "El RUN ya está registrado.")
+        setEnviando(true)
+        try {
+            await onGuardar(usuario)
+            setGuardado(true)
+        } catch (error) {
+            setErrores(erroresDeCampos(error))
+            setErrorGeneral(mensajeDeError(error))
+        } finally {
+            setEnviando(false)
+        }
     }
 
     // ---------- Campos que cambian de lugar según el modo ----------
@@ -309,6 +326,11 @@ function FormularioUsuario({
                     <p className="mensaje-exito mensaje-exito-formulario" role="status">
                         {guardado ? mensajeExito : ''}
                     </p>
+                    {errorGeneral && (
+                        <p className="mensaje-error" role="alert">
+                            {errorGeneral}
+                        </p>
+                    )}
                     <section className="acciones-formulario-usuario">
                         {/* En editar se informa cuántos cambios hay sin guardar */}
                         {modo === 'editar' && (
@@ -330,16 +352,21 @@ function FormularioUsuario({
                             id="boton-guardar"
                             type="submit"
                             className="btn btn-admin btn-principal"
-                            disabled={modo === 'editar' && cambios.length === 0}
+                            disabled={enviando || (modo === 'editar' && cambios.length === 0)}
                         >
-                            {textoBoton}
+                            {enviando ? textoEnviando : textoBoton}
                         </button>
                     </section>
                 </>
             ) : (
                 <>
-                    <button id="boton-registro" type="submit" className="btn btn-principal btn-acceso">
-                        {textoBoton}
+                    {errorGeneral && (
+                        <p id="error-registro" className="mensaje-error" role="alert">
+                            {errorGeneral}
+                        </p>
+                    )}
+                    <button id="boton-registro" type="submit" className="btn btn-principal btn-acceso" disabled={enviando}>
+                        {enviando ? textoEnviando : textoBoton}
                     </button>
                     <p id="mensaje-registro" className="mensaje-exito" role="status">
                         {guardado ? mensajeExito : ''}

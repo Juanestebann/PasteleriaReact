@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
     leerJSON,
     leerUsuarios,
-    buscarPorCredenciales,
     crearSesion,
+    crearSesionDesdeApi,
     esPerfilInterno,
     obtenerIniciales,
     claseRol,
@@ -49,11 +49,19 @@ describe('S06 - Usuarios y sesión en localStorage', () => {
         expect(usuarios.find((usuario) => usuario.run === '222222222').nombre).toBe('Vendedora')
     })
 
-    it('encuentra al usuario con correo y contraseña correctos, sin importar mayúsculas', () => {
-        const usuarios = leerUsuarios()
+    // S3-09: el login ya no se busca en localStorage; la sesión se arma con la respuesta de la API
+    it('arma la sesión desde la API con los tokens y el rol visible', () => {
+        const sesion = crearSesionDesdeApi({
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            usuario: { run: '111111111', nombre: 'Administrador', fechaNacimiento: null, rol: 'ADMINISTRADOR' },
+        })
 
-        expect(buscarPorCredenciales(usuarios, 'ADMIN@gmail.com', 'admin123')?.tipoUsuario).toBe('Administrador')
-        expect(buscarPorCredenciales(usuarios, 'admin@gmail.com', 'otraClave')).toBeNull()
+        expect(sesion.tipoUsuario).toBe('Administrador')
+        expect(sesion.accessToken).toBe('token')
+        expect(sesion.fechaNacimiento).toBe('')
+        expect(sesion).not.toHaveProperty('contrasena')
+        expect(esPerfilInterno(sesion)).toBe(true)
     })
 
     it('la sesión no guarda la contraseña y reconoce los perfiles internos', () => {

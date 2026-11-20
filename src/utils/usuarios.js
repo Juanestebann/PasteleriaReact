@@ -33,20 +33,32 @@ export function leerUsuarios() {
     return [...internosFaltantes, ...lista]
 }
 
-// Busca un usuario por correo y contraseña. Devuelve el usuario o null.
-export function buscarPorCredenciales(usuarios, correo, contrasena) {
-    const correoNormalizado = correo.trim().toLowerCase()
-    return (
-        usuarios.find(
-            (usuario) => usuario.correo?.toLowerCase() === correoNormalizado && usuario.contrasena === contrasena
-        ) ?? null
-    )
-}
-
 // La sesión guarda los datos del usuario SIN la contraseña.
 export function crearSesion(usuario) {
     const { contrasena: _omitida, ...datosSesion } = usuario
     return datosSesion
+}
+
+// S3-09: la API entrega el rol en mayúsculas; las pantallas de la Ev2 usan el nombre visible
+export const ETIQUETA_ROL = {
+    ADMINISTRADOR: 'Administrador',
+    VENDEDOR: 'Vendedor',
+    CLIENTE: 'Cliente',
+}
+
+// S3-09: arma la sesión a partir de la respuesta de /auth/login o /auth/registro.
+// Guarda los datos del usuario, los dos tokens y "tipoUsuario" para que RutaProtegida,
+// Encabezado y el panel sigan funcionando. Nunca guarda la contraseña.
+// (Juan, en J3-05, puede cambiar la forma de la sesión; esta función es el único lugar a tocar.)
+export function crearSesionDesdeApi(respuesta) {
+    const { accessToken, refreshToken, usuario } = respuesta
+    return {
+        ...usuario,
+        fechaNacimiento: usuario.fechaNacimiento ?? '',
+        tipoUsuario: ETIQUETA_ROL[usuario.rol] ?? 'Cliente',
+        accessToken,
+        refreshToken,
+    }
 }
 
 // Indica si el perfil puede entrar al panel de administración.
