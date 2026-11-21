@@ -259,7 +259,10 @@ function App() {
           <Route index element={<Inicio productos={productos} />} />
           <Route path="productos" element={<Catalogo productos={productos} />} />
           <Route path="producto/:codigo" element={<DetalleProducto productos={productos} />} />
-          <Route path="carrito" element={<Carrito productos={productos} />} />
+          <Route path="carrito" element={<Carrito productos={productos} sesion={sesion} onCompraRealizada={async () => {
+            const actualizados = await obtenerProductos()
+            if (Array.isArray(actualizados)) setProductos(actualizados)
+          }} />} />
           <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
           {/* S08 / S3-09: el registro crea el usuario en la API y deja la sesión iniciada */}
           <Route path="registro" element={<Registro onRegistrar={iniciarSesion} />} />
