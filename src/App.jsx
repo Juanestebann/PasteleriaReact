@@ -15,6 +15,7 @@ import Catalogo from './paginas/tienda/Catalogo'
 import Nosotros from './paginas/tienda/Nosotros'
 import Contacto from './paginas/tienda/Contacto'
 import NoEncontrada from './paginas/tienda/NoEncontrada'
+import AccesoDenegado from './paginas/tienda/AccesoDenegado'
 import Login from './paginas/tienda/Login' // S06: la página real
 import Registro from './paginas/tienda/Registro' // S08: la página real
 import UsuariosAdmin from './paginas/admin/UsuariosAdmin' // S10: la página real
@@ -266,6 +267,8 @@ function App() {
           <Route path="blogs" element={<Blogs />} />
           <Route path="blogs/:id" element={<DetalleBlog />} />
           <Route path="contacto" element={<Contacto />} />
+          {/* J3-06: página visible cuando un usuario autenticado no tiene permisos. */}
+          <Route path="403" element={<AccesoDenegado sesion={sesion} />} />
           <Route path="*" element={<NoEncontrada />} />
         </Route>
 

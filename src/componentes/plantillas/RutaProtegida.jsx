@@ -1,32 +1,19 @@
-
 import { Navigate, Outlet, useLocation } from 'react-router'
 
-function RutaProtegida({ sesion, perfilesPermitidos }) {
-    const location = useLocation()
+// J3-06: comprueba el perfil confirmado por /auth/me desde App.
+function RutaProtegida({ sesion, perfilesPermitidos = [] }) {
+    const ubicacion = useLocation()
 
-    // Usuario sin sesión
+    // Sin iniciar sesión: conserva la ruta para volver después del login.
     if (!sesion) {
-        return (
-            <Navigate
-                to="/login"
-                state={{ from: location }}
-                replace
-            />
-        )
+        return <Navigate to="/login" state={{ from: ubicacion }} replace />
     }
 
-    // Usuario autenticado, pero sin permisos
-    // S06: el perfil se guarda como tipoUsuario (contrato acordado en el informe)
+    // Autenticado pero sin permiso: la página 403 no cierra la sesión.
     if (!perfilesPermitidos.includes(sesion.tipoUsuario)) {
-        return (
-            <main>
-                <h1>403 - Acceso denegado</h1>
-                <p>No tienes permisos para acceder a esta sección.</p>
-            </main>
-        )
+        return <Navigate to="/403" state={{ from: ubicacion }} replace />
     }
 
-    // Usuario autorizado
     return <Outlet />
 }
 
