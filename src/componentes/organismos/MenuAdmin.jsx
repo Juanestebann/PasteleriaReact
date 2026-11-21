@@ -37,6 +37,13 @@ function MenuAdmin({ sesion }) {
                     Productos
                 </NavLink>
 
+                <NavLink
+                    to="/admin/ordenes"
+                    className={({ isActive }) => isActive ? 'opcion-activa' : ''}
+                >
+                    Órdenes
+                </NavLink>
+
                 {mostrarOpcionesAdmin && (
                     <NavLink
                         to="/admin/usuarios"

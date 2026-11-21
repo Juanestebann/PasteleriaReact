@@ -13,11 +13,13 @@ describe('J3-07 - Menú por rol', () => {
         mostrar({ rol: 'ADMINISTRADOR' })
         expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument()
         expect(screen.getByRole('link', { name: 'Productos' })).toBeInTheDocument()
+        expect(screen.getByRole('link', { name: 'Órdenes' })).toBeInTheDocument()
         expect(screen.getByRole('link', { name: 'Usuarios' })).toBeInTheDocument()
     })
     it('vendedor ve productos sin inicio ni usuarios', () => {
         mostrar({ rol: 'VENDEDOR' })
         expect(screen.getByRole('link', { name: 'Productos' })).toBeInTheDocument()
+        expect(screen.getByRole('link', { name: 'Órdenes' })).toBeInTheDocument()
         expect(screen.queryByRole('link', { name: 'Inicio' })).not.toBeInTheDocument()
         expect(screen.queryByRole('link', { name: 'Usuarios' })).not.toBeInTheDocument()
     })

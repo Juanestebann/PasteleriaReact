@@ -1302,7 +1302,7 @@
     font-size: 19px;
 }
 
-.productos-admin-react .formulario-producto .titulo-bloque-formulario > div {
+.productos-admin-react .formulario-producto .titulo-bloque-formulario>div {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -1406,7 +1406,7 @@
 }
 
 /* Encabezados de creación y edición, sin afectar la lista de productos. */
-.productos-admin-react > #productos-presentacion:has(.btn-volver-admin),
+.productos-admin-react>#productos-presentacion:has(.btn-volver-admin),
 .productos-admin-react #nuevo-producto-presentacion,
 .productos-admin-react #editar-producto-presentacion {
     display: flex;
@@ -1422,8 +1422,8 @@
     box-shadow: 0 4px 12px rgba(59, 31, 15, 0.08);
 }
 
-.productos-admin-react > #productos-presentacion:has(.btn-volver-admin) h1,
-.productos-admin-react > #productos-presentacion:has(.btn-volver-admin) h2,
+.productos-admin-react>#productos-presentacion:has(.btn-volver-admin) h1,
+.productos-admin-react>#productos-presentacion:has(.btn-volver-admin) h2,
 .productos-admin-react #nuevo-producto-presentacion h1,
 .productos-admin-react #nuevo-producto-presentacion h2,
 .productos-admin-react #editar-producto-presentacion h1,
@@ -1434,7 +1434,7 @@
     color: var(--color-principal);
 }
 
-.productos-admin-react > #productos-presentacion:has(.btn-volver-admin) p,
+.productos-admin-react>#productos-presentacion:has(.btn-volver-admin) p,
 .productos-admin-react #nuevo-producto-presentacion p,
 .productos-admin-react #editar-producto-presentacion p {
     margin: 0;
@@ -1470,11 +1470,86 @@
         padding: 18px;
     }
 
-    .productos-admin-react > #productos-presentacion:has(.btn-volver-admin),
+    .productos-admin-react>#productos-presentacion:has(.btn-volver-admin),
     .productos-admin-react #nuevo-producto-presentacion,
     .productos-admin-react #editar-producto-presentacion {
         flex-direction: column;
         align-items: flex-start;
         padding: 22px;
+    }
+}
+
+/* J3-09: listado y detalle de órdenes; usa la paleta existente. */
+.ordenes-admin-react .ordenes-presentacion,
+.ordenes-admin-react .ordenes-contenido {
+    padding: 24px;
+    margin-bottom: 22px;
+    border: 1px solid var(--color-borde-panel);
+    border-radius: var(--radio-panel);
+    background: var(--color-blanco);
+}
+
+.ordenes-admin-react .ordenes-presentacion {
+    border-left: 5px solid var(--color-acento);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.ordenes-admin-react .ordenes-presentacion h2 {
+    color: var(--color-principal);
+    margin-bottom: 8px;
+}
+
+.ordenes-admin-react .ordenes-presentacion p {
+    margin: 0;
+}
+
+.ordenes-admin-react .tabla-contenedor {
+    overflow-x: auto;
+}
+
+.ordenes-admin-react .tabla-admin {
+    width: 100%;
+    min-width: 600px;
+}
+
+.ordenes-admin-react .ordenes-enlace {
+    color: var(--color-marca);
+    font-weight: 700;
+}
+
+.ordenes-admin-react .ordenes-enlace:hover {
+    color: var(--color-acento-hover);
+}
+
+.ordenes-admin-react .ordenes-totales {
+    max-width: 360px;
+    margin: 24px 0 0 auto;
+}
+
+.ordenes-admin-react .ordenes-totales p {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.ordenes-admin-react .ordenes-total-final {
+    border-top: 2px solid var(--color-borde-panel);
+    padding-top: 12px;
+    font-size: 1.15rem;
+    color: var(--color-principal);
+}
+
+@media (max-width: 700px) {
+    .ordenes-admin-react .ordenes-presentacion {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ordenes-admin-react .ordenes-presentacion,
+    .ordenes-admin-react .ordenes-contenido {
+        padding: 16px;
     }
 }

@@ -22,6 +22,8 @@ import UsuariosAdmin from './paginas/admin/UsuariosAdmin' // S10: la página rea
 import EditorUsuario from './paginas/admin/EditorUsuario' // S11: nuevo y editar usuario
 import VerUsuario from './paginas/admin/VerUsuario' // S12: detalle del usuario
 import ProductosAdmin from './paginas/admin/ProductosAdmin'
+import OrdenesAdmin from './paginas/admin/OrdenesAdmin'
+import DetalleOrden from './paginas/admin/DetalleOrden'
 import EditorProducto from './paginas/admin/EditorProducto'
 import {
   leerProductos,
@@ -297,6 +299,8 @@ function App() {
                 />
               }
             />
+            <Route path="ordenes" element={<OrdenesAdmin />} />
+            <Route path="ordenes/:id" element={<DetalleOrden />} />
             <Route
               path="productos"
               element={
