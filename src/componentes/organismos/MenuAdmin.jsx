@@ -1,8 +1,9 @@
 
 import { NavLink } from 'react-router'
+import { esAdministrador } from '../../utils/roles'
 
 function MenuAdmin({ sesion }) {
-    const esAdministrador = sesion?.tipoUsuario === 'Administrador'
+    const mostrarOpcionesAdmin = esAdministrador(sesion)
 
     return (
         <aside id="menu-admin">
@@ -15,15 +16,17 @@ function MenuAdmin({ sesion }) {
             </div>
 
             <nav id="navegacion-admin" aria-label="Menú administrativo">
-                <NavLink
-                    to="/admin"
-                    end
-                    className={({ isActive }) =>
-                        isActive ? 'opcion-activa' : ''
-                    }
-                >
-                    Inicio
-                </NavLink>
+                {mostrarOpcionesAdmin && (
+                    <NavLink
+                        to="/admin"
+                        end
+                        className={({ isActive }) =>
+                            isActive ? 'opcion-activa' : ''
+                        }
+                    >
+                        Inicio
+                    </NavLink>
+                )}
 
                 <NavLink
                     to="/admin/productos"
@@ -34,7 +37,7 @@ function MenuAdmin({ sesion }) {
                     Productos
                 </NavLink>
 
-                {esAdministrador && (
+                {mostrarOpcionesAdmin && (
                     <NavLink
                         to="/admin/usuarios"
                         className={({ isActive }) =>

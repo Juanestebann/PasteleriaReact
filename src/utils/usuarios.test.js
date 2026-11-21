@@ -1,3 +1,4 @@
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
     leerJSON,
@@ -9,75 +10,144 @@ import {
     claseRol,
     formatearFecha,
 } from './usuarios'
+import { ROLES } from './roles'
 
 describe('S06 - Usuarios y sesión en localStorage', () => {
 
-    // Cada prueba parte con el almacenamiento vacío
     beforeEach(() => {
         localStorage.clear()
     })
 
-    // Después de cada prueba se quitan los mocks
     afterEach(() => {
         vi.restoreAllMocks()
     })
 
     it('devuelve el valor por defecto si lo guardado está corrupto', () => {
-        // Mock: simulamos que localStorage devuelve un texto que no es JSON
         vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('{esto no es json')
 
         expect(leerJSON('usuarios', [])).toEqual([])
     })
 
     it('siempre incluye las cuentas de administrador y vendedor', () => {
-        localStorage.setItem('usuarios', JSON.stringify([{ run: '123456785', correo: 'jose@duoc.cl' }]))
+        localStorage.setItem('usuarios', JSON.stringify([
+            { run: '123456785', correo: 'jose@duoc.cl' }
+        ]))
 
         const correos = leerUsuarios().map((usuario) => usuario.correo)
 
-        expect(correos).toEqual(['admin@gmail.com', 'vendedor@gmail.com', 'jose@duoc.cl'])
+        expect(correos).toEqual([
+            'admin@gmail.com',
+            'vendedor@gmail.com',
+            'jose@duoc.cl'
+        ])
     })
 
-    // S11
     it('si una cuenta interna fue editada, se respeta la versión editada', () => {
-        const vendedorEditado = { run: '222222222', nombre: 'Vendedora', correo: 'vendedor@gmail.com', tipoUsuario: 'Vendedor' }
+        const vendedorEditado = {
+            run: '222222222',
+            nombre: 'Vendedora',
+            correo: 'vendedor@gmail.com',
+            tipoUsuario: 'Vendedor'
+        }
+
         localStorage.setItem('usuarios', JSON.stringify([vendedorEditado]))
 
         const usuarios = leerUsuarios()
 
-        // No se duplica: 1 administrador (agregado) + el vendedor editado
         expect(usuarios).toHaveLength(2)
-        expect(usuarios.find((usuario) => usuario.run === '222222222').nombre).toBe('Vendedora')
+        expect(
+            usuarios.find((usuario) => usuario.run === '222222222').nombre
+        ).toBe('Vendedora')
     })
 
-    // S3-09: el login ya no se busca en localStorage; la sesión se arma con la respuesta de la API
     it('arma la sesión desde la API con los tokens y el rol visible', () => {
         const sesion = crearSesionDesdeApi({
             accessToken: 'token',
             refreshToken: 'refresh',
-            usuario: { run: '111111111', nombre: 'Administrador', fechaNacimiento: null, rol: 'ADMINISTRADOR' },
+            usuario: {
+                run: '111111111',
+                nombre: 'Administrador',
+                fechaNacimiento: null,
+                rol: ROLES.ADMINISTRADOR
+            },
         })
 
+        expect(sesion.rol).toBe(ROLES.ADMINISTRADOR)
         expect(sesion.tipoUsuario).toBe('Administrador')
         expect(sesion.accessToken).toBe('token')
+        expect(sesion.refreshToken).toBe('refresh')
         expect(sesion.fechaNacimiento).toBe('')
         expect(sesion).not.toHaveProperty('contrasena')
         expect(esPerfilInterno(sesion)).toBe(true)
     })
 
     it('la sesión no guarda la contraseña y reconoce los perfiles internos', () => {
-        const sesion = crearSesion({ nombre: 'Vendedor', contrasena: 'vend123', tipoUsuario: 'Vendedor' })
+        const sesion = crearSesion({
+            nombre: 'Vendedor',
+            contrasena: 'vend123',
+            tipoUsuario: 'Vendedor'
+        })
 
         expect(sesion).not.toHaveProperty('contrasena')
         expect(esPerfilInterno(sesion)).toBe(true)
         expect(esPerfilInterno({ tipoUsuario: 'Cliente' })).toBe(false)
     })
 
-    // S12
     it('arma las iniciales, la clase del rol y la fecha para mostrar', () => {
-        expect(obtenerIniciales({ nombre: 'José', apellidos: 'Cardoza' })).toBe('JC')
+        expect(obtenerIniciales({
+            nombre: 'José',
+            apellidos: 'Cardoza'
+        })).toBe('JC')
+
         expect(claseRol('Vendedor')).toBe('rol rol-vendedor')
         expect(claseRol(undefined)).toBe('rol rol-cliente')
         expect(formatearFecha('2004-03-15')).toBe('15-03-2004')
         expect(formatearFecha('')).toBe('-')
+    })
+
+    // J3-07: nuevas pruebas de roles.
+
+    it('reconoce al vendedor recibido desde la API', () => {
+        const sesion = crearSesionDesdeApi({
+            accessToken: 'token-vendedor',
+            refreshToken: 'refresh-vendedor',
+            usuario: {
+                nombre: 'Vendedor',
+                rol: ROLES.VENDEDOR
+            }
+        })
+
+        expect(sesion.rol).toBe(ROLES.VENDEDOR)
+        expect(sesion.tipoUsuario).toBe('Vendedor')
+        expect(esPerfilInterno(sesion)).toBe(true)
+    })
+
+    it('reconoce al cliente recibido desde la API', () => {
+        const sesion = crearSesionDesdeApi({
+            accessToken: 'token-cliente',
+            refreshToken: 'refresh-cliente',
+            usuario: {
+                nombre: 'Cliente',
+                rol: ROLES.CLIENTE
+            }
+        })
+
+        expect(sesion.rol).toBe(ROLES.CLIENTE)
+        expect(sesion.tipoUsuario).toBe('Cliente')
+        expect(esPerfilInterno(sesion)).toBe(false)
+    })
+
+    it('mantiene compatibilidad con los roles anteriores', () => {
+        expect(esPerfilInterno({
+            tipoUsuario: 'Administrador'
+        })).toBe(true)
+
+        expect(esPerfilInterno({
+            tipoUsuario: 'Vendedor'
+        })).toBe(true)
+
+        expect(esPerfilInterno({
+            tipoUsuario: 'Cliente'
+        })).toBe(false)
     })
 })

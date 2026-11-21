@@ -1,14 +1,11 @@
 import { Link, NavLink } from 'react-router'
+import { esPersonalInterno, esVendedor } from '../../utils/roles'
 
 function Encabezado({
     usuario = null,
     cantidadCarrito = 0,
     onCerrarSesion = () => { }
 }) {
-    // J14: identificar usuarios con acceso al panel administrativo
-    const esPersonalInterno =
-        usuario?.tipoUsuario === 'Administrador' ||
-        usuario?.tipoUsuario === 'Vendedor'
 
     return (
         <>
@@ -86,10 +83,10 @@ function Encabezado({
                             </span>
 
                             {/* J14: enlace exclusivo para personal interno */}
-                            {esPersonalInterno && (
+                            {esPersonalInterno(usuario) && (
                                 <Link
                                     className="boton-sesion boton-panel"
-                                    to="/admin"
+                                    to={esVendedor(usuario) ? "/admin/productos" : "/admin"}
                                     aria-label="Ir al panel administrativo"
                                 >
                                     <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
