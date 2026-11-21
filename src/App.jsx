@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react' // S06
+import { useEffect, useRef, useState } from 'react' // S06 / J3-05
 import { Routes, Route, useNavigate } from 'react-router' // S06: se agregó useNavigate
 import DetalleProducto from './paginas/tienda/DetalleProducto'
 import { leerCarrito, EVENTO_CARRITO_ACTUALIZADO } from './utils/almacenamiento'
@@ -30,15 +30,14 @@ import {
 } from './utils/productos'
 import {
   CLAVE_USUARIOS,
-  CLAVE_SESION,
-  leerJSON,
   guardarJSON,
   leerUsuarios,
-  crearSesion,
   crearSesionDesdeApi,
 } from './utils/usuarios' // S06 / S3-09
 import InicioAdmin from './paginas/admin/InicioAdmin'
 import { obtenerProductos } from './servicios/productosApi'
+import { obtenerUsuarioActual, refrescar } from './servicios/auth'
+import { CLAVE_SESION_JWT, leerSesion, guardarSesion, borrarSesion, tokenVencido } from './servicios/sesion'
 
 function App() {
   const navegar = useNavigate()
@@ -46,7 +45,10 @@ function App() {
   // S06 - ESTADO COMPARTIDO: usuarios registrados y sesión activa.
   // Se leen de localStorage al abrir la página y bajan por props a quien los necesita.
   const [usuarios, setUsuarios] = useState(leerUsuarios)
-  const [sesion, setSesion] = useState(() => leerJSON(CLAVE_SESION, null))
+  const [sesion, setSesion] = useState(null)
+  const [cargandoSesion, setCargandoSesion] = useState(true)
+  const [avisoSesion, setAvisoSesion] = useState('')
+  const versionSesion = useRef(0)
   const [productos, setProductos] = useState(leerProductos)
   // J04: contador compartido con el carrito real (incluye las cantidades).
   const [cantidadCarrito, setCantidadCarrito] = useState(() => contarProductos(leerCarrito()))
@@ -90,25 +92,125 @@ function App() {
   }, [usuarios])
 
   useEffect(() => {
-    if (sesion) guardarJSON(CLAVE_SESION, sesion)
-    else localStorage.removeItem(CLAVE_SESION)
-  }, [sesion])
-
-  useEffect(() => {
     guardarProductos(productos)
   }, [productos])
 
-  // S3-09: recibe la respuesta de la API (login o registro) y guarda la sesión.
-  // El correo y la contraseña ya los comprobó el backend; aquí solo se guarda el resultado.
+  // J3-05: reconstruye el usuario visible usando la identidad confirmada por /auth/me.
+  // Nunca se toma el rol guardado en localStorage como autorización definitiva.
+  function usuarioVisible(usuario, tokens) {
+    return crearSesionDesdeApi({ ...tokens, usuario })
+  }
+
+  useEffect(() => {
+    let activo = true
+
+    async function restaurarSesion() {
+      const version = ++versionSesion.current
+      const guardada = leerSesion()
+      if (!guardada?.accessToken || !guardada?.refreshToken) {
+        if (activo && version === versionSesion.current) {
+          borrarSesion()
+          setSesion(null)
+          setCargandoSesion(false)
+        }
+        return
+      }
+
+      try {
+        let tokens = guardada
+        if (tokenVencido(tokens.accessToken)) {
+          const respuesta = await refrescar(tokens.refreshToken)
+          if (!respuesta?.accessToken) throw new Error('Respuesta de renovación inválida')
+          tokens = {
+            accessToken: respuesta.accessToken,
+            refreshToken: respuesta.refreshToken || tokens.refreshToken,
+            usuario: respuesta.usuario || tokens.usuario,
+          }
+        }
+
+        // El interceptor también puede renovar el token cuando /auth/me devuelve 401.
+        const usuario = await obtenerUsuarioActual(tokens.accessToken)
+        if (!activo || version !== versionSesion.current) return
+        const actual = leerSesion()
+        // No revivir una sesión cerrada mientras se estaba consultando la API.
+        if (actual && actual.refreshToken !== guardada.refreshToken && actual.refreshToken !== tokens.refreshToken) return
+        if (!actual && !tokenVencido(guardada.accessToken)) return
+        const confirmada = leerSesion()
+        const definitiva = confirmada?.accessToken && confirmada.refreshToken === tokens.refreshToken
+          ? confirmada : tokens
+        guardarSesion({ ...definitiva, usuario })
+        setSesion(usuarioVisible(usuario, definitiva))
+        setAvisoSesion('')
+      } catch {
+        if (activo && version === versionSesion.current) {
+          borrarSesion()
+          setSesion(null)
+          setAvisoSesion('Tu sesión expiró')
+        }
+      } finally {
+        if (activo && version === versionSesion.current) setCargandoSesion(false)
+      }
+    }
+
+    restaurarSesion()
+    return () => { activo = false; ++versionSesion.current }
+  }, [])
+
+  useEffect(() => {
+    function sincronizarSesion(evento) {
+      if (evento.key !== CLAVE_SESION_JWT && evento.key !== null) return
+      ++versionSesion.current
+      const guardada = leerSesion()
+      if (!guardada?.accessToken) {
+        setSesion(null)
+        setCargandoSesion(false)
+        navegar('/', { replace: true })
+      } else {
+        // Una nueva sesión en otra pestaña se validará al recargar.
+        setSesion(null)
+        setCargandoSesion(true)
+        window.location.reload()
+      }
+    }
+
+    function sesionExpirada() {
+      ++versionSesion.current
+      borrarSesion()
+      setSesion(null)
+      setCargandoSesion(false)
+      setAvisoSesion('Tu sesión expiró')
+      navegar('/login', { replace: true })
+    }
+
+    window.addEventListener('storage', sincronizarSesion)
+    window.addEventListener('sesion-expirada', sesionExpirada)
+    return () => {
+      window.removeEventListener('storage', sincronizarSesion)
+      window.removeEventListener('sesion-expirada', sesionExpirada)
+    }
+  }, [navegar])
+
+  // S3-09: guardar tokens en la clave única que utilizan los interceptores.
   function iniciarSesion(respuestaAuth) {
-    const nuevaSesion = crearSesionDesdeApi(respuestaAuth)
+    if (!respuestaAuth?.accessToken || !respuestaAuth?.refreshToken || !respuestaAuth?.usuario) {
+      throw new Error('La respuesta de autenticación está incompleta')
+    }
+    ++versionSesion.current
+    guardarSesion(respuestaAuth)
+    const nuevaSesion = usuarioVisible(respuestaAuth.usuario, respuestaAuth)
     setSesion(nuevaSesion)
+    setAvisoSesion('')
+    setCargandoSesion(false)
     return nuevaSesion
   }
 
   function cerrarSesion() {
+    ++versionSesion.current
+    borrarSesion()
     setSesion(null)
-    navegar('/')
+    setAvisoSesion('')
+    setCargandoSesion(false)
+    navegar('/', { replace: true })
   }
 
   // S11: el administrador crea un usuario (a diferencia del registro, no cambia la sesión)
@@ -119,12 +221,10 @@ function App() {
   // S11: reemplaza al usuario que tiene el mismo RUN por su versión editada
   function actualizarUsuario(usuarioEditado) {
     setUsuarios((actuales) =>
-        actuales.map((usuario) => (usuario.run === usuarioEditado.run ? usuarioEditado : usuario))
+      actuales.map((usuario) => (usuario.run === usuarioEditado.run ? usuarioEditado : usuario))
     )
-    // Si el administrador se editó a sí mismo, también se actualiza su sesión (sin perder los tokens)
-    if (sesion?.run === usuarioEditado.run) {
-      setSesion((actual) => ({ ...actual, ...crearSesion(usuarioEditado) }))
-    }
+    // La identidad autenticada la confirma /auth/me; una edición local no cambia el JWT.
+    // Los datos visibles se actualizarán al volver a validar la sesión.
   }
 
   function crearNuevoProducto(producto) {
@@ -138,119 +238,122 @@ function App() {
   // Elimina un producto de la lista utilizando su código.
   function eliminarProductoRegistrado(codigo) {
     setProductos((actuales) =>
-        actuales.filter((producto) => producto.codigo !== codigo)
+      actuales.filter((producto) => producto.codigo !== codigo)
     )
   }
 
+  if (cargandoSesion) return <main role="status">Cargando sesión…</main>
+
   return (
-      <>
-        {/* Al navegar, la nueva página parte desde arriba (como en la Ev1) */}
-        <SubirAlInicio />
-        <Routes>
-          {/* RUTAS PÚBLICAS */}
-          <Route
-              path="/"
-              element={<LayoutTienda usuario={sesion} cantidadCarrito={cantidadCarrito} onCerrarSesion={cerrarSesion} />}
-          >
-            <Route index element={<Inicio productos={productos} />} />
-            <Route path="productos" element={<Catalogo productos={productos} />} />
-            <Route path="producto/:codigo" element={<DetalleProducto productos={productos} />} />
-            <Route path="carrito" element={<Carrito productos={productos} />} />
-            <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
-            {/* S08 / S3-09: el registro crea el usuario en la API y deja la sesión iniciada */}
-            <Route path="registro" element={<Registro onRegistrar={iniciarSesion} />} />
-            <Route path="nosotros" element={<Nosotros />} />
-            <Route path="blogs" element={<Blogs />} />
-            <Route path="blogs/:id" element={<DetalleBlog />} />
-            <Route path="contacto" element={<Contacto />} />
-            <Route path="*" element={<NoEncontrada />} />
-          </Route>
+    <>
+      {avisoSesion && <p role="alert">{avisoSesion}</p>}
+      {/* Al navegar, la nueva página parte desde arriba (como en la Ev1) */}
+      <SubirAlInicio />
+      <Routes>
+        {/* RUTAS PÚBLICAS */}
+        <Route
+          path="/"
+          element={<LayoutTienda usuario={sesion} cantidadCarrito={cantidadCarrito} onCerrarSesion={cerrarSesion} />}
+        >
+          <Route index element={<Inicio productos={productos} />} />
+          <Route path="productos" element={<Catalogo productos={productos} />} />
+          <Route path="producto/:codigo" element={<DetalleProducto productos={productos} />} />
+          <Route path="carrito" element={<Carrito productos={productos} />} />
+          <Route path="login" element={<Login onIniciarSesion={iniciarSesion} />} />
+          {/* S08 / S3-09: el registro crea el usuario en la API y deja la sesión iniciada */}
+          <Route path="registro" element={<Registro onRegistrar={iniciarSesion} />} />
+          <Route path="nosotros" element={<Nosotros />} />
+          <Route path="blogs" element={<Blogs />} />
+          <Route path="blogs/:id" element={<DetalleBlog />} />
+          <Route path="contacto" element={<Contacto />} />
+          <Route path="*" element={<NoEncontrada />} />
+        </Route>
 
-          {/* RUTAS: ADMINISTRADOR Y VENDEDOR */}
-          <Route
+        {/* RUTAS: ADMINISTRADOR Y VENDEDOR */}
+        <Route
+          element={
+            <RutaProtegida
+              sesion={sesion}
+              perfilesPermitidos={['Administrador', 'Vendedor']}
+            />
+          }
+        >
+          <Route path="/admin" element={<LayoutAdmin
+            sesion={sesion}
+            onCerrarSesion={cerrarSesion}
+          />}>
+            <Route
+              index
               element={
-                <RutaProtegida
-                    sesion={sesion}
-                    perfilesPermitidos={['Administrador', 'Vendedor']}
+                <InicioAdmin
+                  sesion={sesion}
+                  productos={productos}
                 />
               }
-          >
-            <Route path="/admin" element={<LayoutAdmin
-                sesion={sesion}
-                onCerrarSesion={cerrarSesion}
-            />}>
-              <Route
-                  index
-                  element={
-                    <InicioAdmin
-                        sesion={sesion}
-                        productos={productos}
-                    />
-                  }
-              />
-              <Route
-                  path="productos"
-                  element={
-                    <ProductosAdmin
-                        productos={productos}
-                        puedeGestionar={sesion?.tipoUsuario === 'Administrador'}
-                        onEliminar={eliminarProductoRegistrado}
-                    />
-                  }
-              />
-            </Route>
-          </Route>
-
-          {/* RUTAS: SOLO ADMINISTRADOR */}
-          <Route
+            />
+            <Route
+              path="productos"
               element={
-                <RutaProtegida
-                    sesion={sesion}
-                    perfilesPermitidos={['Administrador']}
+                <ProductosAdmin
+                  productos={productos}
+                  puedeGestionar={sesion?.tipoUsuario === 'Administrador'}
+                  onEliminar={eliminarProductoRegistrado}
                 />
               }
-          >
-            <Route path="/admin" element={<LayoutAdmin
-                sesion={sesion}
-                onCerrarSesion={cerrarSesion}
-            />}>
-              <Route
-                  path="productos/nuevo"
-                  element={
-                    <EditorProducto
-                        productos={productos}
-                        onCrear={crearNuevoProducto}
-                        onActualizar={guardarProductoEditado}
-                    />
-                  }
-              />
-              <Route
-                  path="productos/:codigo/editar"
-                  element={
-                    <EditorProducto
-                        productos={productos}
-                        onCrear={crearNuevoProducto}
-                        onActualizar={guardarProductoEditado}
-                    />
-                  }
-              />
-              {/* S10 */}
-              <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
-              {/* S11 */}
-              <Route
-                  path="usuarios/nuevo"
-                  element={<EditorUsuario usuarios={usuarios} onCrear={crearUsuario} />}
-              />
-              {/* S12 */}
-              <Route path="usuarios/:run" element={<VerUsuario usuarios={usuarios} />} />
-              <Route
-                  path="usuarios/:run/editar"
-                  element={<EditorUsuario usuarios={usuarios} onActualizar={actualizarUsuario} />}
-              />
-            </Route>
+            />
           </Route>
-        </Routes>
-      </>
+        </Route>
+
+        {/* RUTAS: SOLO ADMINISTRADOR */}
+        <Route
+          element={
+            <RutaProtegida
+              sesion={sesion}
+              perfilesPermitidos={['Administrador']}
+            />
+          }
+        >
+          <Route path="/admin" element={<LayoutAdmin
+            sesion={sesion}
+            onCerrarSesion={cerrarSesion}
+          />}>
+            <Route
+              path="productos/nuevo"
+              element={
+                <EditorProducto
+                  productos={productos}
+                  onCrear={crearNuevoProducto}
+                  onActualizar={guardarProductoEditado}
+                />
+              }
+            />
+            <Route
+              path="productos/:codigo/editar"
+              element={
+                <EditorProducto
+                  productos={productos}
+                  onCrear={crearNuevoProducto}
+                  onActualizar={guardarProductoEditado}
+                />
+              }
+            />
+            {/* S10 */}
+            <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
+            {/* S11 */}
+            <Route
+              path="usuarios/nuevo"
+              element={<EditorUsuario usuarios={usuarios} onCrear={crearUsuario} />}
+            />
+            {/* S12 */}
+            <Route path="usuarios/:run" element={<VerUsuario usuarios={usuarios} />} />
+            <Route
+              path="usuarios/:run/editar"
+              element={<EditorUsuario usuarios={usuarios} onActualizar={actualizarUsuario} />}
+            />
+          </Route>
+        </Route>
+      </Routes>
+    </>
   )
 }
 
