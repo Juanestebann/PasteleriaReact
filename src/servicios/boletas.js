@@ -21,3 +21,9 @@ export async function obtenerBoleta(id) {
     const respuesta = await api.get(`/boletas/${encodeURIComponent(id)}`)
     return respuesta.data
 }
+
+// J3-10: el servidor devuelve solo las compras del usuario identificado por JWT.
+export async function listarMisCompras() {
+    const respuesta = await api.get('/boletas/mias')
+    return respuesta.data
+}

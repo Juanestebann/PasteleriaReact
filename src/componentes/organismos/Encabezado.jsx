@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router'
-import { esPersonalInterno, esVendedor } from '../../utils/roles'
+import { esPersonalInterno, esVendedor, obtenerRol, ROLES } from '../../utils/roles'
 
 function Encabezado({
     usuario = null,
@@ -81,6 +81,12 @@ function Encabezado({
                                 </span>
                                 Hola, {usuario.nombre}
                             </span>
+
+                            {obtenerRol(usuario) === ROLES.CLIENTE && (
+                                <Link className="boton-sesion boton-panel" to="/mis-compras">
+                                    Mis compras
+                                </Link>
+                            )}
 
                             {/* J14: enlace exclusivo para personal interno */}
                             {esPersonalInterno(usuario) && (

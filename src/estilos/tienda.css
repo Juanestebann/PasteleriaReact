@@ -1897,6 +1897,7 @@ header:has(> #marca)>#sesion-header {
         font-size: 25px;
     }
 }
+
 /* ===== Blogs (React): títulos en negrita como la Ev1 y ajustes para celular ===== */
 
 /* Bootstrap deja los h2 en 500; en la Ev1 se veían en negrita */
@@ -1922,6 +1923,7 @@ header:has(> #marca)>#sesion-header {
 
 /* Celular: títulos más chicos y la foto con proporción fija */
 @media (max-width: 600px) {
+
     #blog-presentacion,
     #lista-noticias,
     #detalle-presentacion,
@@ -1972,6 +1974,7 @@ header:has(> #marca)>#sesion-header {
         transition: none;
     }
 }
+
 /* Bootstrap le cambia el color de la letra a .btn al pasar el mouse (queda café sobre café).
    Los botones oscuros mantienen la letra blanca */
 .btn-oscuro:hover,
@@ -1979,6 +1982,7 @@ header:has(> #marca)>#sesion-header {
 .btn-oscuro:active {
     color: var(--color-blanco);
 }
+
 /* ===== Diseño · Encabezado con marco propio y buscador nuevo ===== */
 
 /* 1. Marco: fondo crema, sombra suave y una franja café-dorado-naranjo abajo.
@@ -2001,8 +2005,8 @@ header:has(> #marca):has(> #menu)::after {
 }
 
 /* La primera sección de cada página ya no necesita su propia línea arriba (la pone el marco) */
-header:has(> #marca) ~ main > section:first-child,
-header:has(> #marca) ~ main > main > section:first-child {
+header:has(> #marca)~main>section:first-child,
+header:has(> #marca)~main>main>section:first-child {
     border-top: none;
 }
 
@@ -2155,6 +2159,7 @@ header:has(> #marca) .boton-IniciarSesion:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     header:has(> #marca) #menu a::after,
     header:has(> #marca) #buscador button,
     header:has(> #marca) .boton-icono,
@@ -2162,6 +2167,7 @@ header:has(> #marca) .boton-IniciarSesion:hover {
         transition: none;
     }
 }
+
 /* ===== Diseño · Menú con separadores y título estilo cafetería ===== */
 
 /* Menú: Inicio | Carta | Promociones | ... */
@@ -2175,7 +2181,7 @@ header:has(> #marca) #menu a {
 }
 
 /* La rayita va antes de cada link, menos del primero */
-header:has(> #marca) #menu a + a::before {
+header:has(> #marca) #menu a+a::before {
     content: '';
     position: absolute;
     left: 0;
@@ -2219,7 +2225,7 @@ header:has(> #marca) #marca p {
         padding: 8px 10px;
     }
 
-    header:has(> #marca) #menu a + a::before {
+    header:has(> #marca) #menu a+a::before {
         display: none;
     }
 
@@ -2227,10 +2233,11 @@ header:has(> #marca) #marca p {
         font-size: 26px;
     }
 }
+
 /* ===== Diseño · Sesión iniciada en el encabezado ===== */
 
 /* Más aire entre el saludo y los botones */
-header:has(> #marca) > #sesion-header {
+header:has(> #marca)>#sesion-header {
     gap: 10px;
 }
 
@@ -2306,7 +2313,7 @@ header:has(> #marca) .boton-salir:hover {
 
 /* Con sesión iniciada hay menos espacio: el menú no se parte y el buscador se achica un poco */
 @media (min-width: 1451px) {
-    header:has(> #marca) > #menu {
+    header:has(> #marca)>#menu {
         flex-wrap: nowrap;
     }
 
@@ -2321,7 +2328,7 @@ header:has(> #marca) .boton-salir:hover {
 
 /* Celular: el saludo arriba y los dos botones lado a lado debajo */
 @media (max-width: 600px) {
-    header:has(> #marca) > #sesion-header:has(.nombre-usuario) {
+    header:has(> #marca)>#sesion-header:has(.nombre-usuario) {
         display: grid;
         grid-template-columns: auto auto;
         justify-content: center;
@@ -2342,5 +2349,128 @@ header:has(> #marca) .boton-salir:hover {
 @media (prefers-reduced-motion: reduce) {
     header:has(> #marca) .boton-sesion {
         transition: none;
+    }
+}
+
+/* J3-10: historial y detalle de compras del cliente. */
+.mis-compras-react {
+    max-width: 1100px;
+    margin: 36px auto 64px;
+    padding: 0 20px;
+    color: var(--color-principal);
+}
+
+.mis-compras-cabecera,
+.mis-compras-tarjeta,
+.mis-compras-detalle,
+.mis-compras-mensaje {
+    background: var(--color-blanco);
+    border: 1px solid var(--color-borde-panel);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 18px;
+}
+
+.mis-compras-cabecera {
+    border-left: 5px solid var(--color-acento);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.mis-compras-cabecera h2 {
+    margin: 0 0 8px;
+    color: var(--color-principal);
+}
+
+.mis-compras-cabecera p {
+    margin: 0;
+}
+
+.mis-compras-tarjeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.mis-compras-tarjeta h3 {
+    margin: 0 0 12px;
+    color: var(--color-principal);
+}
+
+.mis-compras-tarjeta p {
+    margin: 5px 0;
+}
+
+.mis-compras-resumen {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    white-space: nowrap;
+}
+
+.mis-compras-resumen strong {
+    font-size: 1.3rem;
+}
+
+.mis-compras-tabla-contenedor {
+    overflow-x: auto;
+    margin-top: 24px;
+}
+
+.mis-compras-tabla-contenedor table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+}
+
+.mis-compras-tabla-contenedor th,
+.mis-compras-tabla-contenedor td {
+    padding: 12px;
+    border-bottom: 1px solid var(--color-borde-panel);
+    text-align: left;
+}
+
+.mis-compras-tabla-contenedor th {
+    background: var(--color-fondo-suave);
+}
+
+.mis-compras-totales {
+    max-width: 350px;
+    margin: 25px 0 0 auto;
+}
+
+.mis-compras-totales p {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.mis-compras-total-final {
+    padding-top: 12px;
+    border-top: 2px solid var(--color-borde-panel);
+    font-size: 1.15rem;
+}
+
+@media (max-width: 650px) {
+
+    .mis-compras-cabecera,
+    .mis-compras-tarjeta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mis-compras-resumen {
+        align-items: flex-start;
+    }
+
+    .mis-compras-cabecera,
+    .mis-compras-tarjeta,
+    .mis-compras-detalle,
+    .mis-compras-mensaje {
+        padding: 17px;
     }
 }

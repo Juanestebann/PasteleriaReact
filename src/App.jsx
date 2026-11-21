@@ -24,6 +24,8 @@ import VerUsuario from './paginas/admin/VerUsuario' // S12: detalle del usuario
 import ProductosAdmin from './paginas/admin/ProductosAdmin'
 import OrdenesAdmin from './paginas/admin/OrdenesAdmin'
 import DetalleOrden from './paginas/admin/DetalleOrden'
+import MisCompras from './paginas/tienda/MisCompras'
+import DetalleCompra from './paginas/tienda/DetalleCompra'
 import EditorProducto from './paginas/admin/EditorProducto'
 import {
   leerProductos,
@@ -272,6 +274,11 @@ function App() {
           <Route path="blogs" element={<Blogs />} />
           <Route path="blogs/:id" element={<DetalleBlog />} />
           <Route path="contacto" element={<Contacto />} />
+          {/* J3-10: solo clientes autenticados pueden consultar sus compras. */}
+          <Route element={<RutaProtegida sesion={sesion} perfilesPermitidos={['Cliente']} />}>
+            <Route path="mis-compras" element={<MisCompras />} />
+            <Route path="mis-compras/:id" element={<DetalleCompra />} />
+          </Route>
           {/* J3-06: página visible cuando un usuario autenticado no tiene permisos. */}
           <Route path="403" element={<AccesoDenegado sesion={sesion} />} />
           <Route path="*" element={<NoEncontrada />} />

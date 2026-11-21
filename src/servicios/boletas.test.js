@@ -44,3 +44,12 @@ describe('J3-09 - consultas de órdenes', () => {
         await expect(obtenerBoleta(4)).rejects.toThrow('Sin conexión')
     })
 })
+
+describe('J3-10 - compras del cliente', () => {
+    it('consulta exclusivamente GET /boletas/mias', async () => {
+        const { listarMisCompras } = await import('./boletas')
+        api.get.mockResolvedValue({ data: [{ id: 5 }] })
+        await expect(listarMisCompras()).resolves.toEqual([{ id: 5 }])
+        expect(api.get).toHaveBeenCalledWith('/boletas/mias')
+    })
+})
