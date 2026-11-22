@@ -1,12 +1,13 @@
 
 import { useSearchParams } from 'react-router'
-import { leerProductos } from '../../utils/productos'
 import TarjetaProducto from '../../componentes/moleculas/TarjetaProducto'
 import { agregarProducto } from '../../utils/carrito'
 import { leerCarrito, guardarCarrito } from '../../utils/almacenamiento'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { obtenerCategorias } from '../../servicios/categorias'
+import { obtenerProductos } from '../../servicios/productosApi'
 
-const categorias = [
+const categoriasIniciales = [
     { codigo: 'todos', nombre: 'Todos' },
     { codigo: 'cuadradas', nombre: 'Tortas Cuadradas' },
     { codigo: 'circulares', nombre: 'Tortas Circulares' },
@@ -18,10 +19,103 @@ const categorias = [
     { codigo: 'especiales', nombre: 'Tortas Especiales' }
 ]
 
-function Catalogo({ productos }) {
-    const inventario = productos ?? leerProductos()
+function Catalogo({ productos: _productos }) {
     const [searchParams, setSearchParams] = useSearchParams()
     const [mensajeCarrito, setMensajeCarrito] = useState('')
+    const [categorias, setCategorias] = useState(categoriasIniciales)
+    const [inventario, setInventario] = useState([])
+    const [cargando, setCargando] = useState(true)
+    const [error, setError] = useState('')
+    const [intentos, setIntentos] = useState(0)
+
+    const categoriaURL = searchParams.get('categoria') || 'todos'
+    const categoriaSeleccionada = categorias.some(
+        categoria => categoria.codigo === categoriaURL
+    ) ? categoriaURL : 'todos'
+
+    const busqueda = searchParams.get('buscar') || ''
+
+    // C3-06: obtener las categorías desde la API REST.
+    useEffect(() => {
+        let activo = true
+
+        async function cargarCategorias() {
+            try {
+                const respuesta = await obtenerCategorias()
+
+                if (activo && Array.isArray(respuesta)) {
+                    setCategorias([
+                        { codigo: 'todos', nombre: 'Todos' },
+                        ...respuesta.map(categoria => ({
+                            codigo: categoria.slug,
+                            nombre: categoria.nombre
+                        }))
+                    ])
+                }
+            } catch (errorCategorias) {
+                console.error(
+                    'No se pudieron cargar las categorías:',
+                    errorCategorias
+                )
+            }
+        }
+
+        cargarCategorias()
+
+        return () => {
+            activo = false
+        }
+    }, [])
+
+    // C3-06: consultar los productos según la categoría seleccionada.
+    useEffect(() => {
+        let activo = true
+
+        async function cargarProductos() {
+            setCargando(true)
+            setError('')
+            setInventario([])
+
+            try {
+                const categoria = categoriaURL === 'todos'
+                    ? ''
+                    : categoriaURL
+
+                const respuesta = await obtenerProductos(categoria)
+
+                if (!activo) return
+
+                if (!Array.isArray(respuesta)) {
+                    throw new Error('Respuesta de productos inválida')
+                }
+
+                setInventario(respuesta)
+            } catch (errorProductos) {
+                if (!activo) return
+
+                console.error(
+                    'No se pudieron cargar los productos:',
+                    errorProductos
+                )
+
+                setError('No hay conexión con el servidor.')
+            } finally {
+                if (activo) {
+                    setCargando(false)
+                }
+            }
+        }
+
+        cargarProductos()
+
+        return () => {
+            activo = false
+        }
+    }, [categoriaURL, intentos])
+
+    function reintentarCarga() {
+        setIntentos(actuales => actuales + 1)
+    }
 
     function manejarAgregar(producto) {
         const carritoActual = leerCarrito()
@@ -39,25 +133,12 @@ function Catalogo({ productos }) {
         }
     }
 
-    const categoriaURL = searchParams.get('categoria') || 'todos'
-
-    const categoriaSeleccionada = categorias.some(
-        categoria => categoria.codigo === categoriaURL
-    ) ? categoriaURL : 'todos'
-
-    const busqueda = searchParams.get('buscar') || ''
-
-    const productosFiltrados = inventario.filter(producto => {
-        const coincideCategoria =
-            categoriaSeleccionada === 'todos' ||
-            producto.categoria === categoriaSeleccionada
-
-        const coincideBusqueda = producto.nombre
+    // La búsqueda por nombre permanece en el navegador.
+    const productosFiltrados = inventario.filter(producto =>
+        producto.nombre
             .toLocaleLowerCase('es-CL')
             .includes(busqueda.trim().toLocaleLowerCase('es-CL'))
-
-        return coincideCategoria && coincideBusqueda
-    })
+    )
 
     function cambiarCategoria(nuevaCategoria) {
         setSearchParams(actuales => {
@@ -130,20 +211,37 @@ function Catalogo({ productos }) {
                     ))}
                 </nav>
 
-                <p
-                    role="status"
-                    aria-live="polite"
-                    className="visually-hidden"
-                >
-                    {productosFiltrados.length}
-                    {productosFiltrados.length === 1
-                        ? ' producto encontrado'
-                        : ' productos encontrados'}
-                </p>
+                {!cargando && !error && (
+                    <p
+                        role="status"
+                        aria-live="polite"
+                        className="visually-hidden"
+                    >
+                        {productosFiltrados.length}
+                        {productosFiltrados.length === 1
+                            ? ' producto encontrado'
+                            : ' productos encontrados'}
+                    </p>
+                )}
 
                 <p role="status" aria-live="polite">{mensajeCarrito}</p>
 
-                {productosFiltrados.length > 0 ? (
+                {cargando ? (
+                    <p role="status" aria-live="polite">
+                        Cargando productos...
+                    </p>
+                ) : error ? (
+                    <div role="alert">
+                        <p>{error}</p>
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={reintentarCarga}
+                        >
+                            Reintentar
+                        </button>
+                    </div>
+                ) : productosFiltrados.length > 0 ? (
                     <section
                         id="productos-completos"
                         aria-label="Listado de productos"
