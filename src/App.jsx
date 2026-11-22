@@ -23,6 +23,7 @@ import UsuariosAdmin from './paginas/admin/UsuariosAdmin'
 import EditorUsuario from './paginas/admin/EditorUsuario'
 import VerUsuario from './paginas/admin/VerUsuario'
 import ProductosAdmin from './paginas/admin/ProductosAdmin'
+import CategoriasAdmin from './paginas/admin/CategoriasAdmin' // C3-09
 import OrdenesAdmin from './paginas/admin/OrdenesAdmin'
 import DetalleOrden from './paginas/admin/DetalleOrden'
 import MisCompras from './paginas/tienda/MisCompras'
@@ -41,8 +42,7 @@ import {
   tokenVencido
 } from './servicios/sesion'
 
-// C3-07: evento compartido para actualizar el inventario
-// después de una operación administrativa realizada correctamente.
+// C3-07: evento compartido para sincronizar el inventario.
 const EVENTO_INVENTARIO_ACTUALIZADO = 'inventario-productos-actualizado'
 
 function App() {
@@ -82,8 +82,7 @@ function App() {
   }, [])
 
   // C3-06: carga los productos reales desde Spring Boot.
-  // C3-07: vuelve a consultar el inventario cuando una operación
-  // administrativa crea, edita o elimina un producto.
+  // C3-07: sincroniza el inventario después de crear, editar o eliminar.
   useEffect(() => {
     let activo = true
     let versionInventario = 0
@@ -127,13 +126,14 @@ function App() {
     }
   }, [])
 
-  // Conserva el almacenamiento compartido que ya utiliza el proyecto.
   useEffect(() => {
     guardarProductos(productos)
   }, [productos])
 
-  // J3-05: reconstruye el usuario visible usando la identidad confirmada por /auth/me.
-  // Nunca se toma el rol guardado en localStorage como autorización definitiva.
+  // J3-05: reconstruye el usuario visible usando la identidad
+  // confirmada por /auth/me.
+  // Nunca se toma el rol guardado en localStorage
+  // como autorización definitiva.
   function usuarioVisible(usuario, tokens) {
     return crearSesionDesdeApi({ ...tokens, usuario })
   }
@@ -172,14 +172,16 @@ function App() {
           }
         }
 
-        // El interceptor también puede renovar el token cuando /auth/me devuelve 401.
+        // El interceptor también puede renovar el token
+        // cuando /auth/me devuelve 401.
         const usuario = await obtenerUsuarioActual(tokens.accessToken)
 
         if (!activo || version !== versionSesion.current) return
 
         const actual = leerSesion()
 
-        // No revivir una sesión cerrada mientras se estaba consultando la API.
+        // No revivir una sesión cerrada mientras
+        // se estaba consultando la API.
         if (
             actual &&
             actual.refreshToken !== guardada.refreshToken &&
@@ -268,7 +270,8 @@ function App() {
     }
   }, [navegar])
 
-  // S3-09: guardar tokens en la clave única que utilizan los interceptores.
+  // S3-09: guardar tokens en la clave única
+  // que utilizan los interceptores.
   function iniciarSesion(respuestaAuth) {
     if (
         !respuestaAuth?.accessToken ||
@@ -364,7 +367,8 @@ function App() {
                 element={<Login onIniciarSesion={iniciarSesion} />}
             />
 
-            {/* S08 / S3-09: el registro crea el usuario en la API y deja la sesión iniciada */}
+            {/* S08 / S3-09: el registro crea el usuario
+              en la API y deja la sesión iniciada */}
             <Route
                 path="registro"
                 element={<Registro onRegistrar={iniciarSesion} />}
@@ -375,7 +379,8 @@ function App() {
             <Route path="blogs/:id" element={<DetalleBlog />} />
             <Route path="contacto" element={<Contacto />} />
 
-            {/* J3-10: solo clientes autenticados pueden consultar sus compras. */}
+            {/* J3-10: solo clientes autenticados
+              pueden consultar sus compras. */}
             <Route
                 element={
                   <RutaProtegida
@@ -395,7 +400,8 @@ function App() {
               />
             </Route>
 
-            {/* J3-06: página visible cuando un usuario autenticado no tiene permisos. */}
+            {/* J3-06: página visible cuando un usuario
+              autenticado no tiene permisos. */}
             <Route
                 path="403"
                 element={<AccesoDenegado sesion={sesion} />}
@@ -442,7 +448,7 @@ function App() {
                   element={<DetalleOrden />}
               />
 
-              {/* C3-07: listado y eliminación mediante API */}
+              {/* C3-07: productos conectados a Spring Boot */}
               <Route
                   path="productos"
                   element={
@@ -474,6 +480,7 @@ function App() {
                   />
                 }
             >
+              {/* C3-07: creación y edición de productos */}
               <Route
                   path="productos/nuevo"
                   element={<EditorProducto />}
@@ -482,6 +489,13 @@ function App() {
               <Route
                   path="productos/:codigo/editar"
                   element={<EditorProducto />}
+              />
+
+              {/* C3-09: administración de categorías.
+                Solo puede ingresar el Administrador. */}
+              <Route
+                  path="categorias"
+                  element={<CategoriasAdmin />}
               />
 
               {/* S3-10: las páginas de usuarios consultan la API */}
