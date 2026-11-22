@@ -1,7 +1,12 @@
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { productosIniciales } from '../../datos/productos'
+import {
+    obtenerProductos,
+    eliminarProductoApi
+} from '../../servicios/productosApi'
+
+const EVENTO_INVENTARIO_ACTUALIZADO = 'inventario-productos-actualizado'
 
 const formatearPrecio = (precio) =>
     '$' + precio.toLocaleString('es-CL')
@@ -18,38 +23,144 @@ const mostrarCategoria = (categoria) =>
         .replace(/\b\w/g, (letra) => letra.toUpperCase())
 
 function ProductosAdmin({
-    productos = productosIniciales,
-    puedeGestionar = true,
-    onEliminar
-}) {
+                            productos,
+                            puedeGestionar = true,
+                            onEliminar
+                        }) {
     const [busqueda, setBusqueda] = useState('')
     const [filtro, setFiltro] = useState('todos')
+    const [productosApi, setProductosApi] = useState([])
+    const [cargando, setCargando] = useState(false)
+    const [error, setError] = useState('')
+    const [intentos, setIntentos] = useState(0)
+    const [eliminandoCodigo, setEliminandoCodigo] = useState('')
 
-    function confirmarEliminacion(producto) {
-        if (!puedeGestionar || typeof onEliminar !== 'function') {
-            return
+    // Compatibilidad con App.jsx anterior y pruebas originales.
+    const usaProductosExternos = Array.isArray(productos)
+    const inventario = usaProductosExternos
+        ? productos
+        : productosApi
+
+    // C3-07: consulta el inventario desde Spring Boot.
+    useEffect(() => {
+        if (usaProductosExternos) return
+
+        let activo = true
+
+        async function cargarProductos() {
+            setCargando(true)
+            setError('')
+
+            try {
+                const respuesta = await obtenerProductos()
+
+                if (!activo) return
+
+                if (!Array.isArray(respuesta)) {
+                    throw new Error('Respuesta de productos inválida')
+                }
+
+                setProductosApi(respuesta)
+            } catch (errorProductos) {
+                if (!activo) return
+
+                console.error(
+                    'No se pudieron cargar los productos:',
+                    errorProductos
+                )
+
+                setError('No se pudieron cargar los productos.')
+            } finally {
+                if (activo) {
+                    setCargando(false)
+                }
+            }
         }
+
+        cargarProductos()
+
+        return () => {
+            activo = false
+        }
+    }, [usaProductosExternos, intentos])
+
+    function reintentarCarga() {
+        setIntentos(actuales => actuales + 1)
+    }
+
+    async function confirmarEliminacion(producto) {
+        if (!puedeGestionar || eliminandoCodigo) return
 
         const confirmado = window.confirm(
             `¿Estás seguro de que deseas eliminar el producto ${producto.nombre} (${producto.codigo})?`
         )
 
-        if (confirmado) {
+        if (!confirmado) return
+
+        // Compatibilidad con los callbacks anteriores.
+        if (typeof onEliminar === 'function') {
             onEliminar(producto.codigo)
+            return
+        }
+
+        if (producto.id == null) {
+            setError('No se encontró el identificador del producto.')
+            return
+        }
+
+        setEliminandoCodigo(producto.codigo)
+        setError('')
+
+        try {
+            await eliminarProductoApi(producto.id)
+
+            // Refleja inmediatamente el cambio en la tabla.
+            setProductosApi(actuales =>
+                actuales.filter(actual => actual.id !== producto.id)
+            )
+
+            // C3-07: sincroniza Inicio, Detalle y el inventario
+            // compartido de App.jsx con la información del backend.
+            window.dispatchEvent(
+                new Event(EVENTO_INVENTARIO_ACTUALIZADO)
+            )
+        } catch (errorEliminacion) {
+            console.error(
+                'No se pudo eliminar el producto:',
+                errorEliminacion
+            )
+
+            const estado = errorEliminacion.response?.status
+
+            if (estado === 403) {
+                setError(
+                    'No tienes permisos para eliminar productos.'
+                )
+            } else if (estado === 404) {
+                setError(
+                    'El producto ya no existe en el servidor.'
+                )
+            } else {
+                setError(
+                    'No se pudo eliminar el producto. Inténtalo nuevamente.'
+                )
+            }
+        } finally {
+            setEliminandoCodigo('')
         }
     }
 
-    const totalProductos = productos.length
+    const totalProductos = inventario.length
 
-    const productosCriticos = productos.filter(
-        (producto) => producto.stock <= producto.stockCritico
+    const productosCriticos = inventario.filter(
+        producto => producto.stock <= producto.stockCritico
     ).length
 
     const categorias = [
-        ...new Set(productos.map((producto) => producto.categoria))
+        ...new Set(inventario.map(producto => producto.categoria))
     ]
 
-    const productosFiltrados = productos.filter((producto) => {
+    const productosFiltrados = inventario.filter(producto => {
         const texto = normalizar(
             `${producto.codigo} ${producto.nombre}`
         )
@@ -128,7 +239,7 @@ function ProductosAdmin({
                         className="form-control"
                         type="search"
                         value={busqueda}
-                        onChange={(evento) =>
+                        onChange={evento =>
                             setBusqueda(evento.target.value)
                         }
                         placeholder="Buscar producto..."
@@ -144,7 +255,7 @@ function ProductosAdmin({
                         id="filtrar-producto-admin"
                         className="form-select"
                         value={filtro}
-                        onChange={(evento) =>
+                        onChange={evento =>
                             setFiltro(evento.target.value)
                         }
                     >
@@ -156,7 +267,7 @@ function ProductosAdmin({
                             Stock crítico
                         </option>
 
-                        {categorias.map((categoria) => (
+                        {categorias.map(categoria => (
                             <option
                                 key={categoria}
                                 value={categoria}
@@ -178,132 +289,167 @@ function ProductosAdmin({
                 )}
             </section>
 
+            {error && (
+                <div className="panel" role="alert">
+                    <p>{error}</p>
+
+                    {!usaProductosExternos && (
+                        <button
+                            type="button"
+                            className="btn btn-principal"
+                            onClick={reintentarCarga}
+                        >
+                            Reintentar
+                        </button>
+                    )}
+                </div>
+            )}
+
             <section className="panel listado-productos-admin">
                 <div id="productos-listado-header">
                     <h2>Productos registrados</h2>
                     <p>Inventario disponible en el sistema.</p>
                 </div>
 
-                <div className="tabla-contenedor">
-                    <table
-                        id="tabla-productos"
-                        className="tabla-admin"
-                    >
-                        <thead>
-                            <tr>
-                                <th>Imagen</th>
-                                <th>Código</th>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Stock crítico</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {productosFiltrados.map((producto) => {
-                                const sinStock =
-                                    producto.stock === 0
-
-                                const critico =
-                                    producto.stock <=
-                                    producto.stockCritico
-
-                                const estado = sinStock
-                                    ? 'Sin stock'
-                                    : critico
-                                        ? 'Stock crítico'
-                                        : 'Disponible'
-
-                                return (
-                                    <tr key={producto.codigo}>
-                                        <td>
-                                            <img
-                                                className="imagen-producto-admin"
-                                                src={producto.imagen}
-                                                alt={producto.nombre}
-                                            />
-                                        </td>
-
-                                        <td>{producto.codigo}</td>
-
-                                        <td>{producto.nombre}</td>
-
-                                        <td>
-                                            {mostrarCategoria(
-                                                producto.categoria
-                                            )}
-                                        </td>
-
-                                        <td>
-                                            {formatearPrecio(
-                                                producto.precio
-                                            )}
-                                        </td>
-
-                                        <td>{producto.stock}</td>
-
-                                        <td>
-                                            {producto.stockCritico}
-                                        </td>
-
-                                        <td>
-                                            <span
-                                                className={
-                                                    'estado-producto-admin ' +
-                                                    (critico
-                                                        ? 'estado-producto-critico'
-                                                        : 'estado-producto-disponible')
-                                                }
-                                            >
-                                                {estado}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            <div className="celda-acciones">
-                                                {puedeGestionar ? (
-                                                    <>
-                                                        <Link
-                                                            to={`/admin/productos/${producto.codigo}/editar`}
-                                                            className="btn btn-principal"
-                                                            aria-label={`Editar ${producto.nombre}`}
-                                                        >
-                                                            Editar
-                                                        </Link>
-
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-eliminar-producto"
-                                                            aria-label={`Eliminar ${producto.nombre}`}
-                                                            onClick={() =>
-                                                                confirmarEliminacion(producto)
-                                                            }
-                                                        >
-                                                            Eliminar
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <span>
-                                                        Solo lectura
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-
-                {productosFiltrados.length === 0 && (
+                {cargando ? (
                     <p role="status">
-                        No se encontraron productos.
+                        Cargando productos...
                     </p>
+                ) : (
+                    <>
+                        <div className="tabla-contenedor">
+                            <table
+                                id="tabla-productos"
+                                className="tabla-admin"
+                            >
+                                <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Stock crítico</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {productosFiltrados.map(producto => {
+                                    const sinStock =
+                                        producto.stock === 0
+
+                                    const critico =
+                                        producto.stock <=
+                                        producto.stockCritico
+
+                                    const estado = sinStock
+                                        ? 'Sin stock'
+                                        : critico
+                                            ? 'Stock crítico'
+                                            : 'Disponible'
+
+                                    return (
+                                        <tr key={producto.codigo}>
+                                            <td>
+                                                <img
+                                                    className="imagen-producto-admin"
+                                                    src={producto.imagen}
+                                                    alt={producto.nombre}
+                                                />
+                                            </td>
+
+                                            <td>
+                                                {producto.codigo}
+                                            </td>
+
+                                            <td>
+                                                {producto.nombre}
+                                            </td>
+
+                                            <td>
+                                                {mostrarCategoria(
+                                                    producto.categoria
+                                                )}
+                                            </td>
+
+                                            <td>
+                                                {formatearPrecio(
+                                                    producto.precio
+                                                )}
+                                            </td>
+
+                                            <td>
+                                                {producto.stock}
+                                            </td>
+
+                                            <td>
+                                                {producto.stockCritico}
+                                            </td>
+
+                                            <td>
+                                                    <span
+                                                        className={
+                                                            'estado-producto-admin ' +
+                                                            (critico
+                                                                ? 'estado-producto-critico'
+                                                                : 'estado-producto-disponible')
+                                                        }
+                                                    >
+                                                        {estado}
+                                                    </span>
+                                            </td>
+
+                                            <td>
+                                                <div className="celda-acciones">
+                                                    {puedeGestionar ? (
+                                                        <>
+                                                            <Link
+                                                                to={`/admin/productos/${producto.codigo}/editar`}
+                                                                className="btn btn-principal"
+                                                                aria-label={`Editar ${producto.nombre}`}
+                                                            >
+                                                                Editar
+                                                            </Link>
+
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-eliminar-producto"
+                                                                aria-label={`Eliminar ${producto.nombre}`}
+                                                                disabled={
+                                                                    Boolean(eliminandoCodigo)
+                                                                }
+                                                                onClick={() =>
+                                                                    confirmarEliminacion(producto)
+                                                                }
+                                                            >
+                                                                {eliminandoCodigo === producto.codigo
+                                                                    ? 'Eliminando...'
+                                                                    : 'Eliminar'}
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <span>
+                                                                Solo lectura
+                                                            </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {!error && productosFiltrados.length === 0 && (
+                            <p role="status">
+                                No se encontraron productos.
+                            </p>
+                        )}
+                    </>
                 )}
             </section>
         </div>
