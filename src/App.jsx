@@ -33,12 +33,7 @@ import {
   crearProducto,
   actualizarProducto,
 } from './utils/productos'
-import {
-  CLAVE_USUARIOS,
-  guardarJSON,
-  leerUsuarios,
-  crearSesionDesdeApi,
-} from './utils/usuarios' // S06 / S3-09
+import { crearSesionDesdeApi } from './utils/usuarios' // S06 / S3-09
 import InicioAdmin from './paginas/admin/InicioAdmin'
 import { obtenerProductos } from './servicios/productosApi'
 import { obtenerUsuarioActual, refrescar } from './servicios/auth'
@@ -47,9 +42,8 @@ import { CLAVE_SESION_JWT, leerSesion, guardarSesion, borrarSesion, tokenVencido
 function App() {
   const navegar = useNavigate()
 
-  // S06 - ESTADO COMPARTIDO: usuarios registrados y sesión activa.
-  // Se leen de localStorage al abrir la página y bajan por props a quien los necesita.
-  const [usuarios, setUsuarios] = useState(leerUsuarios)
+  // S06 - ESTADO COMPARTIDO: sesión activa.
+  // S3-10: los usuarios ya no viven aquí: las páginas del panel los piden a la API.
   const [sesion, setSesion] = useState(null)
   const [cargandoSesion, setCargandoSesion] = useState(true)
   const [avisoSesion, setAvisoSesion] = useState('')
@@ -90,11 +84,6 @@ function App() {
       activo = false
     }
   }, [])
-
-  // Cada vez que cambian, se guardan en localStorage (sobreviven a un F5)
-  useEffect(() => {
-    guardarJSON(CLAVE_USUARIOS, usuarios)
-  }, [usuarios])
 
   useEffect(() => {
     guardarProductos(productos)
@@ -216,20 +205,6 @@ function App() {
     setAvisoSesion('')
     setCargandoSesion(false)
     navegar('/', { replace: true })
-  }
-
-  // S11: el administrador crea un usuario (a diferencia del registro, no cambia la sesión)
-  function crearUsuario(usuario) {
-    setUsuarios((actuales) => [...actuales, usuario])
-  }
-
-  // S11: reemplaza al usuario que tiene el mismo RUN por su versión editada
-  function actualizarUsuario(usuarioEditado) {
-    setUsuarios((actuales) =>
-      actuales.map((usuario) => (usuario.run === usuarioEditado.run ? usuarioEditado : usuario))
-    )
-    // La identidad autenticada la confirma /auth/me; una edición local no cambia el JWT.
-    // Los datos visibles se actualizarán al volver a validar la sesión.
   }
 
   function crearNuevoProducto(producto) {
@@ -354,19 +329,11 @@ function App() {
                 />
               }
             />
-            {/* S10 */}
-            <Route path="usuarios" element={<UsuariosAdmin usuarios={usuarios} />} />
-            {/* S11 */}
-            <Route
-              path="usuarios/nuevo"
-              element={<EditorUsuario usuarios={usuarios} onCrear={crearUsuario} />}
-            />
-            {/* S12 */}
-            <Route path="usuarios/:run" element={<VerUsuario usuarios={usuarios} />} />
-            <Route
-              path="usuarios/:run/editar"
-              element={<EditorUsuario usuarios={usuarios} onActualizar={actualizarUsuario} />}
-            />
+            {/* S3-10: las páginas de usuarios consultan la API; ya no reciben la lista por props */}
+            <Route path="usuarios" element={<UsuariosAdmin sesion={sesion} />} />
+            <Route path="usuarios/nuevo" element={<EditorUsuario />} />
+            <Route path="usuarios/:run" element={<VerUsuario />} />
+            <Route path="usuarios/:run/editar" element={<EditorUsuario />} />
           </Route>
         </Route>
       </Routes>

@@ -1,6 +1,8 @@
 // Organismo: listado de usuarios del panel de administración, con buscador y filtro por rol.
 // En la Ev1 esto lo hacía usuarios-admin.js armando cada fila con innerHTML.
 // Ahora recibe la lista por props y la dibuja con .map().
+// S3-10: si la página entrega onEliminar, cada fila muestra el botón Eliminar
+// (menos la del usuario conectado, que no puede eliminarse a sí mismo).
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { formatearRun } from '../../utils/validaciones'
@@ -19,7 +21,7 @@ function iniciales(usuario) {
     return `${usuario.nombre?.[0] ?? ''}${usuario.apellidos?.[0] ?? ''}`.toUpperCase() || '?'
 }
 
-function TablaUsuarios({ usuarios = [], children }) {
+function TablaUsuarios({ usuarios = [], children, onEliminar, runEliminando = null, runPropio = null }) {
     const [busqueda, setBusqueda] = useState('')
     const [rol, setRol] = useState('Todos')
 
@@ -142,6 +144,17 @@ function TablaUsuarios({ usuarios = [], children }) {
                                                 <Link className="boton-editar" to={`/admin/usuarios/${usuario.run}/editar`}>
                                                     ✏ Editar
                                                 </Link>
+                                                {onEliminar && usuario.run !== runPropio && (
+                                                    <button
+                                                        type="button"
+                                                        className="boton-eliminar-producto boton-eliminar-usuario"
+                                                        onClick={() => onEliminar(usuario)}
+                                                        disabled={runEliminando === usuario.run}
+                                                        aria-label={`Eliminar a ${usuario.nombre} ${usuario.apellidos}`}
+                                                    >
+                                                        {runEliminando === usuario.run ? 'Eliminando…' : 'Eliminar'}
+                                                    </button>
+                                                )}
                                             </span>
                                         </td>
                                     </tr>

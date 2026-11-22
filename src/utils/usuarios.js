@@ -1,11 +1,10 @@
-
-import usuariosIniciales from '../datos/usuariosIniciales'
+// Utilidades para mostrar usuarios y armar la sesión visible.
+// S3-10: los usuarios ya no se guardan en el navegador (antes: clave "usuarios");
+// viven en la API (MySQL) y el panel los pide con servicios/usuarios.js.
+// La sesión con los tokens se guarda en servicios/sesion.js (J3-05).
 import { ETIQUETA_ROL, esPersonalInterno } from './roles'
 
 export { ETIQUETA_ROL } from './roles'
-
-export const CLAVE_USUARIOS = 'usuarios'
-export const CLAVE_SESION = 'usuarioActivo'
 
 export function leerJSON(clave, valorPorDefecto) {
     try {
@@ -18,22 +17,6 @@ export function leerJSON(clave, valorPorDefecto) {
 
 export function guardarJSON(clave, valor) {
     localStorage.setItem(clave, JSON.stringify(valor))
-}
-
-export function leerUsuarios() {
-    const guardados = leerJSON(CLAVE_USUARIOS, [])
-    const lista = Array.isArray(guardados) ? guardados : []
-
-    const internosFaltantes = usuariosIniciales.filter(
-        (interno) => !lista.some((usuario) => usuario.run === interno.run)
-    )
-
-    return [...internosFaltantes, ...lista]
-}
-
-export function crearSesion(usuario) {
-    const { contrasena: _omitida, ...datosSesion } = usuario
-    return datosSesion
 }
 
 // J3-07: adapta el rol del backend a las pantallas existentes.

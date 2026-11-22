@@ -1,43 +1,53 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router'
 import EditorUsuario from './EditorUsuario'
+import { obtenerUsuario, crearUsuario, actualizarUsuario } from '../../servicios/usuarios'
 
-const usuarios = [
-    {
-        run: '123456785',
-        nombre: 'José',
-        apellidos: 'Cardoza',
-        correo: 'jose@duoc.cl',
-        fechaNacimiento: '',
-        region: 'Región del Biobío',
-        comuna: 'Concepción',
-        direccion: 'Av. Los Carrera 123',
-        contrasena: 'clave123',
-        tipoUsuario: 'Cliente',
-    },
-]
+// S3-10: crear y editar se hacen en la API. Se simula el servicio para no depender del backend.
+vi.mock('../../servicios/usuarios', () => ({
+    obtenerUsuario: vi.fn(),
+    crearUsuario: vi.fn(),
+    actualizarUsuario: vi.fn(),
+}))
+
+const jose = {
+    run: '123456785',
+    nombre: 'José',
+    apellidos: 'Cardoza',
+    correo: 'jose@duoc.cl',
+    fechaNacimiento: '',
+    region: 'Región del Biobío',
+    comuna: 'Concepción',
+    direccion: 'Av. Los Carrera 123',
+    tipoUsuario: 'Cliente',
+    rol: 'CLIENTE',
+}
 
 // Se dibuja con las mismas rutas de App, para que useParams reciba el :run de la URL
-function renderizarEditor(ruta, props = {}) {
+function renderizarEditor(ruta) {
     render(
         <MemoryRouter initialEntries={[ruta]}>
             <Routes>
                 <Route path="/admin/usuarios" element={<p>Listado de usuarios</p>} />
-                <Route path="/admin/usuarios/nuevo" element={<EditorUsuario usuarios={usuarios} {...props} />} />
-                <Route path="/admin/usuarios/:run/editar" element={<EditorUsuario usuarios={usuarios} {...props} />} />
+                <Route path="/admin/usuarios/nuevo" element={<EditorUsuario />} />
+                <Route path="/admin/usuarios/:run/editar" element={<EditorUsuario />} />
             </Routes>
         </MemoryRouter>
     )
 }
 
-describe('S11 - Página EditorUsuario', () => {
+describe('S3-10 - Página EditorUsuario conectada a la API', () => {
 
-    it('en modo nuevo crea el usuario con el rol elegido y muestra el mensaje', async () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('en modo nuevo crea el usuario en la API con el rol elegido y muestra el mensaje', async () => {
         const usuario = userEvent.setup()
-        const onCrear = vi.fn()
-        renderizarEditor('/admin/usuarios/nuevo', { onCrear })
+        crearUsuario.mockResolvedValue({ ...jose, run: '100000059', tipoUsuario: 'Vendedor' })
+        renderizarEditor('/admin/usuarios/nuevo')
 
         expect(screen.getByRole('heading', { name: 'Nuevo usuario' })).toBeInTheDocument()
 
@@ -53,38 +63,63 @@ describe('S11 - Página EditorUsuario', () => {
         await usuario.type(screen.getByLabelText('Confirmar contraseña'), 'clave123')
         await usuario.click(screen.getByRole('button', { name: 'Crear usuario' }))
 
-        expect(onCrear).toHaveBeenCalledWith(expect.objectContaining({ run: '100000059', tipoUsuario: 'Vendedor' }))
-        expect(screen.getByRole('status')).toHaveTextContent('Usuario creado correctamente.')
+        expect(await screen.findByText('Usuario creado correctamente.')).toBeInTheDocument()
+        expect(crearUsuario).toHaveBeenCalledWith(expect.objectContaining({ run: '100000059', tipoUsuario: 'Vendedor' }))
     })
 
-    it('en modo editar carga los datos del RUN de la URL y bloquea el RUN', () => {
+    it('en modo nuevo muestra el 409 de la API (RUN repetido)', async () => {
+        const usuario = userEvent.setup()
+        crearUsuario.mockRejectedValue({ response: { status: 409, data: { mensaje: 'El RUN ya está registrado.' } } })
+        renderizarEditor('/admin/usuarios/nuevo')
+
+        await usuario.type(screen.getByLabelText('RUN'), '100000059')
+        await usuario.selectOptions(screen.getByLabelText('Rol'), 'Vendedor')
+        await usuario.type(screen.getByLabelText('Nombre'), 'Catalina')
+        await usuario.type(screen.getByLabelText('Apellidos'), 'Díaz')
+        await usuario.type(screen.getByLabelText('Correo electrónico'), 'cata@duoc.cl')
+        await usuario.selectOptions(screen.getByLabelText('Región'), 'Región del Biobío')
+        await usuario.selectOptions(screen.getByLabelText('Comuna'), 'Concepción')
+        await usuario.type(screen.getByLabelText('Dirección'), 'Calle Falsa 123')
+        await usuario.type(screen.getByLabelText('Contraseña'), 'clave123')
+        await usuario.type(screen.getByLabelText('Confirmar contraseña'), 'clave123')
+        await usuario.click(screen.getByRole('button', { name: 'Crear usuario' }))
+
+        expect(await screen.findByRole('alert')).toHaveTextContent('El RUN ya está registrado.')
+    })
+
+    it('en modo editar carga el usuario desde la API y bloquea el RUN', async () => {
+        obtenerUsuario.mockResolvedValue(jose)
         renderizarEditor('/admin/usuarios/123456785/editar')
 
-        expect(screen.getByRole('heading', { name: 'Editar usuario' })).toBeInTheDocument()
-        expect(screen.getByLabelText('Nombre')).toHaveValue('José')
+        expect(screen.getByText('Cargando usuario…')).toBeInTheDocument()
+        expect(await screen.findByLabelText('Nombre')).toHaveValue('José')
+        expect(obtenerUsuario).toHaveBeenCalledWith('123456785')
         expect(screen.getByLabelText('RUN')).toBeDisabled()
     })
 
-    it('al guardar cambios avisa a App con el usuario editado', async () => {
+    it('al guardar cambios hace el PUT con el RUN de la URL', async () => {
         const usuario = userEvent.setup()
-        const onActualizar = vi.fn()
-        renderizarEditor('/admin/usuarios/123456785/editar', { onActualizar })
+        obtenerUsuario.mockResolvedValue(jose)
+        actualizarUsuario.mockResolvedValue({ ...jose, nombre: 'José Ignacio' })
+        renderizarEditor('/admin/usuarios/123456785/editar')
 
-        await usuario.clear(screen.getByLabelText('Nombre'))
-        await usuario.type(screen.getByLabelText('Nombre'), 'José Ignacio')
+        const campoNombre = await screen.findByLabelText('Nombre')
+        await usuario.clear(campoNombre)
+        await usuario.type(campoNombre, 'José Ignacio')
         await usuario.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
-        // Se mantiene el RUN y la contraseña; solo cambia el nombre
-        expect(onActualizar).toHaveBeenCalledWith(
-            expect.objectContaining({ run: '123456785', nombre: 'José Ignacio', contrasena: 'clave123' })
+        expect(await screen.findByText('Usuario actualizado correctamente.')).toBeInTheDocument()
+        expect(actualizarUsuario).toHaveBeenCalledWith(
+            '123456785',
+            expect.objectContaining({ run: '123456785', nombre: 'José Ignacio' })
         )
-        expect(screen.getByRole('status')).toHaveTextContent('Usuario actualizado correctamente.')
     })
 
-    it('si el RUN no existe muestra "Usuario no encontrado"', () => {
+    it('si la API responde 404 muestra "Usuario no encontrado"', async () => {
+        obtenerUsuario.mockRejectedValue({ response: { status: 404, data: { mensaje: 'Usuario no encontrado.' } } })
         renderizarEditor('/admin/usuarios/999999999/editar')
 
-        expect(screen.getByRole('heading', { name: 'Usuario no encontrado' })).toBeInTheDocument()
+        expect(await screen.findByRole('heading', { name: 'Usuario no encontrado' })).toBeInTheDocument()
         expect(screen.queryByRole('button', { name: 'Guardar cambios' })).not.toBeInTheDocument()
     })
 
